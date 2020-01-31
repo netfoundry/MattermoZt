@@ -58,8 +58,8 @@ module.exports = merge(base, {
       loader: 'file-loader',
       options: {
         name: '[name].[ext]',
-        outputPath: '/../fonts',
-        publicPath: './fonts',
+        outputPath: '/../assets/fonts',
+        publicPath: './assets/fonts',
       },
     }],
   },
