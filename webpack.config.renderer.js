@@ -42,7 +42,7 @@ module.exports = merge(base, {
         loader: 'url-loader',
       },
     }, {
-      test: /\.(svg|woff2)$/,
+      test: /\.(svg)$/,
       use: [
         {
           loader: 'file-loader',
@@ -53,6 +53,9 @@ module.exports = merge(base, {
         },
         {loader: 'image-webpack-loader'},
       ],
+    }, {
+      test: /\.(eot|ttf|woff|woff2)?(\?v=[0-9]\.[0-9]\.[0-9])?$/,
+      loader: 'file-loader?name=/../fonts/[name].[ext]',
     }],
   },
   node: {

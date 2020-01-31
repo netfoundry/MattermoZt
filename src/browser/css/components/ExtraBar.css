@@ -1,0 +1,36 @@
+.clear-mode .backIcon,
+.clear-mode .backLabel {
+    color: #166de0;
+}
+
+.dark-mode .backIcon,
+.dark-mode .backLabel {
+    color: #579EFF;
+}
+
+#extra-bar {
+    max-height: 70px;
+    transition: max-height 0.25s ease;
+}
+
+#extra-bar.hidden {
+    max-height: 0px;
+}
+
+#extra-bar.clear-mode {
+    background-color: #ffffff;
+}
+#extra-bar.dark-mode {
+    background-color: #323639;
+}
+
+.backLabel {
+    margin-left: 5px;
+    line-height: 30px;
+    font-size: 13px;
+}
+
+.backLabel,
+.backIcon {
+    cursor: pointer;
+}
