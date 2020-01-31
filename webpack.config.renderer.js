@@ -55,7 +55,12 @@ module.exports = merge(base, {
       ],
     }, {
       test: /\.(eot|ttf|woff|woff2)?(\?v=[0-9]\.[0-9]\.[0-9])?$/,
-      loader: 'file-loader?name=/../fonts/[name].[ext]',
+      loader: 'file-loader',
+      options: {
+        name: '[name].[ext]',
+        outputPath: '/../fonts',
+        publicPath: './fonts',
+      },
     }],
   },
   node: {
