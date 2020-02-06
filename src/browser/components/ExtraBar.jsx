@@ -3,7 +3,7 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import {Row} from 'react-bootstrap';
+import {Row, Button} from 'react-bootstrap';
 
 export default class ExtraBar extends React.Component {
   handleBack = () => {
@@ -33,7 +33,11 @@ export default class ExtraBar extends React.Component {
             className={'backIcon fa fa-1x fa-angle-left'}
             title={'Back Icon'}
           />
-          <span className={'backLabel'}>{'Back'}</span>
+          <Button
+            className={'backLabel'}
+            bsStyle={'link'}
+            bsSize={'xsmall'}
+          >{'Back'}</Button>
         </div>
       </Row>
     );
