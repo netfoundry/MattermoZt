@@ -53,6 +53,9 @@ module.exports = merge(base, {
         },
         {loader: 'image-webpack-loader'},
       ],
+    }, {
+      test: /\.node$/,
+      use: 'node-loader',
     }],
   },
   node: {

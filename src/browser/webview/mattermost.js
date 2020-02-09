@@ -5,6 +5,9 @@
 
 /* eslint-disable no-magic-numbers */
 
+// Let Ziti take over all fetch operations
+import 'ziti-electron-fetch';
+
 import {ipcRenderer, webFrame, remote} from 'electron';
 
 const UNREAD_COUNT_INTERVAL = 1000;
