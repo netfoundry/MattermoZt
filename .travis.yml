@@ -1,0 +1,46 @@
+language: node_js
+
+git:
+  depth: 10
+
+matrix:
+  include:
+  - os: osx
+    osx_image: xcode11.2
+    env: NODE_VERSION="12"
+
+  # Linux
+  - os: linux
+    dist: bionic
+    env: NODE_VERSION="12"
+
+env:
+  global:
+  - secure: Lp5Ylq2MKqwgl8mtJjMpilnZiRXC7kw4dBlXaMcjFyzPxOjr25TN2E88RnFhT2mMW9Bt1OyrXz1Rn/5slHcMcxSNbvRgx5LfrbIYJgTICZFudcSERegxVXxoJqSAYqxuKyPTRWG9dlGSnMd7Lkcd6q1USY7DaNdiNOiLTNvrplFBdZjtAz/3nrG8E62xct8IF+fTytIjZ31e0HndWhxeZWRX9cwQPldLSvF/0J8em0Sv5KFvx02PsLEiXk2QZ+JbO7nxZNgWCmFEfHZVkTy3kfXC0TlXpMFv75uX0lsOyEqcBIuDR4iOQ00xOcL0isOymcY1BvQKjJUoI8K79ygVJW5diaihTd9BAHXPeOa4CjWu1XOrOWRHaes4RZo4rPie2VHh2maHQpkEyj+X5Er0q1nMh8vnc5eEqaRUdce9PHSdUBKQS9uXoRIwqu/TI37XZKLCRSEfN3euAk2bwyOtq7dKNeRye2hsNVNP8Mr9pcrZgrMP3ck2adou7IHZl5+yBRoj1uB6RbqWxuR/ge5+yYYMZWN7wIkCDfPTBEn/RR+Zdv5UdpXK2XnAv1gWD7s8Q/1r5SnfEbUfCayReLqBt046ChJGevhL6ENj5ep09sy16nSkL6NzXkl0Yj7KfcOWhArwJnKQ6/AvGHN9iAdODPGVGEasax34xFEp6soR/Ew=
+  - secure: MHQvBh5E4ElQnUIwTFLfPOp9nHKFzOwhzkFRXcX8uQidmUbX2JcR1GDuDPl/S0beb+HUBftUEwkdmb0fqS/2OxmqckzijJrhJd6x6QuYVXI740hyynzaB6EbRLMG6X1AvMQ2JYygrVEhGYbFTFRC55Ssb70+W+s0+JJLqH+s/3ySYrhpbbGEGgVZx2u7FiQrfA5Ye/4yP3ezQiMxyvCi3w9ovUDag1hPXHsmeGetN5J8AZ0TGDSBneb/8LOPUuaajLkQ2vG4n1LDudu5buePaSZo9x31ZSaVWf387ilAjquTWOSGQNiQBDJ+iCGGjiv6XXWdol6e9bHEz2ySyT1wmzA3fd+LspdHFpXc3fR9tOqxLyMurla5OUZ3uvgbEyknXoutxbwRy4oUkzXE9Kp8dUEZ+TKmaBD1nU+L06I6TscLy8mpOsElq7EK6y5ec3ZSW9iC2k25Y9b76UmWIuTD+4ppOe32AERgk7CXyymQ1zBFP15nVltJzGMlh7YdUyHgffvZWAnvPBSyEoXjBTifd+rDRHdsucBrYcagDw14NESvOvUNJK9R+fjIBw5DhOZFfWMd1oTkCnG1Lqo2VQtQDO1jfUfUq7lGxwSNTTi2ScZQ+H1dlLMEj2fQDmtZidvlOWIJhNHlwj09VRaY+pQtcmrbUdi9WZYwJzEPqYVflMg=
+
+before_install:
+- source ./scripts/install_node.sh ${NODE_VERSION}
+- node --version
+- npm --version
+- COMMIT_MESSAGE=$(git show -s --format=%B $TRAVIS_COMMIT | tr -d '\n')
+- PUBLISH_BINARY=false
+- if [[ $TRAVIS_BRANCH == `git describe --tags --always HEAD` ]]; then PUBLISH_BINARY=true; fi;
+- if test "${COMMIT_MESSAGE#*'[publish binary]'}" != "$COMMIT_MESSAGE"; then PUBLISH_BINARY=true; fi;
+
+install:
+- npm run clean-install
+- npm run build
+- source ./scripts/package_and_publish.sh
+
+deploy:
+  provider: s3
+  access_key_id: AKIAIVZSHCMBWFNEKUMQ
+  secret_access_key:
+    secure: AKlh9cXyT1Vk6IFkk+0VOdQEhTdB8Q9yxJUnyc/TuozT/SEKIHed4Bjh60BcSMeTvV5MVGpO+tw1u5NAOT3ySPashALdTDpK6Xv9NuEwTcBU7iUwbWQHeJKIy0QQXdElwr54E8q8JFmkQdWLz53mFe6pOyzximU22AYu6R2abV13bUjmRhEnSm83wYy/IC5a1tbrptrjG/osVvxF1hDLycOfPcD0CoptZaSq5stH6Y/GrPduhFANEc3ntAtgUVGqb4NfrV+NvuIh/ClW6Nk/NTekIF9TQXV/HbBE3YlwXuss55aC6ynqfBq60MgXbGH0mXyHXzqAqXkrmju3oI75c0/9syFSpCGmUjIXi1fa64G7gRqU0MAheY6gej4my6e6iw8gAbebMvPYUo3ca05O6wDMmZqW8P93FqTCIpWrvA24J9ToEFOsEtiR0qQeGtdA0JM5wDRMK8MBVMek5t1Mo3o3UHEjVPM2wr/5wGEPOMabanF1dkLmDf1bFtW9fTPhxHWYnSRrDKJK0MTiRl2B9VJNEEi9sglupuwA03rQjdoGUPB2oug+3ZLcLPrGUZTfRUpQWVIhXuf4gyPP9n2PsffJ1qy/M6ILc5HAeko1O/T2G955E3GjFSMUX8ODhlYmbnTf/bRfSEm6nh1t5PSKlRkmOZyQFkfYVnw0OsPIjRk=
+  bucket: ziti-mattermozt-binaries
+  local_dir: release
+  upload-dir: travis
+  acl: public_read
+  on:
+    repo: netfoundry/MattermoZt
