@@ -29,3 +29,5 @@ elif [[ "$OSTYPE" == "freebsd"* ]]; then
 else
     echo "OSTYPE is unsupported";
 fi
+
+echo "package_and_publish.sh is now exiting";
