@@ -5,6 +5,8 @@ git:
 
 matrix:
   include:
+
+  # Mac
   - os: osx
     osx_image: xcode11.2
     env: NODE_VERSION="12"
