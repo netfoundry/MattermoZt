@@ -43,7 +43,7 @@ deploy:
   bucket: ziti-mattermozt-binaries
   skip_cleanup: true
   local_dir: release
-  upload-dir: travis
+  upload-dir: travis-ci-builds
   acl: public_read
   on:
     repo: netfoundry/MattermoZt
