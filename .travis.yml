@@ -31,7 +31,7 @@ before_install:
 - if test "${COMMIT_MESSAGE#*'[publish binary]'}" != "$COMMIT_MESSAGE"; then PUBLISH_BINARY=true; fi;
 
 install:
-- npm run clean-install
+- npm install
 - npm run build
 - source ./scripts/package_and_publish.sh
 
