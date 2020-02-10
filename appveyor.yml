@@ -27,17 +27,20 @@ environment:
 
 os: Visual Studio 2015
 
-install:
+build:
   - scripts\build-appveyor.bat
+
+after_build:
+  - ps: Get-ChildItem .\release\*.zip | % { Push-AppveyorArtifact $_.FullName -FileName $_.Name }
 
 deploy:
   provider: S3
   bucket: ziti-mattermozt-binaries
   region: us-east-1
   set_public: true
-  folder: travis-ci-builds
-  artifact: release\mattermoZt-desktop-4.3.0-zitified-001-win-x64.zip
+  folder: $(APPVEYOR_PROJECT_SLUG)/$(APPVEYOR_BUILD_VERSION)
+  # folder: travis-ci-builds
+  # artifact: release\mattermoZt-desktop-4.3.0-zitified-001-win-x64.zip
 
 
-build: OFF
 test: OFF
