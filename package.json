@@ -1,8 +1,8 @@
 {
   "name": "mattermost-desktop",
-  "productName": "Mattermost",
-  "version": "4.3.0-develop",
-  "description": "Mattermost",
+  "productName": "MattermoZt",
+  "version": "4.3.0-zitified-001",
+  "description": "MattermoZt",
   "main": "main.js",
   "author": "Mattermost, Inc. <feedback@mattermost.com>",
   "license": "Apache-2.0",
