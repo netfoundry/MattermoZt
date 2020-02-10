@@ -38,7 +38,6 @@ deploy:
     secure: CGqjn/z/mXDA60fTmz5I9/HXvLSAwPXNfXBwvUAbswO3iZHDXdgWSiOqipj2PC15q6oHBCYp+y7dwH7DJ+yZdfoBSAsITD0RfkYgz2UNkk7rwM5m4klifW4jQr9nt7l21+Nzh2+jXrmiR8nQ6KicIBuYsd4RWXtKYdTzFAbBbcLwMuZ00VR57m5dwRV/3tS8wGBAxig1jvKXFBzZWDKR2lck+ko70/ztQX+POaN0b4YqyCiSN28NoMYfksm+318580n6W5tjduhkGvNPrdkElR78XFdwTl/DzT8SRqtJ2C9RvpaC6a3VaX2/9dUqjnj9cljlKyyW27/RP5hYFK+Rfoe+U1Boq/nE/g4sBfqaK8Hts1pgR8o6WJv4Jh5p+DX8j9aOK4iZkEvn2NFIR/04rJxKWMKMwuaYpGMW279rpDqG64Yj8XbLEa21L4z0g/a7clMkOLxZW/wpQPX4O4FwkXxQj6YqJQWVT90JfWlQq3zEENEPtbhd4aKwf6deG3ht4QSL1ATYYRbxSt1kF8ZANl+/3uidFfP6eiYeaxuO2dB1kYZL5T9tycSrNZKDID2Mdf1IaPa31JAZFV1MeFghOFjqbDo3f065v13fqzdWhMdboau7OcaDY+Ud764kcBipDRmqL3PKADHVifnToOuwFOWDULwwEO3941FcZ1/N2N8=
   bucket: ziti-mattermozt-binaries
   skip_cleanup: true
-  region: us-east-1
   local_dir: release
   upload-dir: travis-ci-builds
   acl: public_read
