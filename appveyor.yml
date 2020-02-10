@@ -30,6 +30,15 @@ os: Visual Studio 2015
 install:
   - scripts\build-appveyor.bat
 
+deploy:
+  provider: S3
+  bucket: ziti-mattermozt-binaries
+  region: us-east-1
+  set_public: true
+  folder: travis-ci-builds
+  artifact: release\mattermoZt-desktop-4.3.0-zitified-001-win-x64.zip
+
+
 build: OFF
 test: OFF
 deploy: OFF

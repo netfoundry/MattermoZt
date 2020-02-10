@@ -32,7 +32,7 @@ before_install:
 
 install:
 - npm install
-- npm run build
+# - npm run build
 - source ./scripts/package_and_publish.sh
 
 deploy:
