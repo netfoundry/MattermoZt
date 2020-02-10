@@ -41,4 +41,3 @@ deploy:
 
 build: OFF
 test: OFF
-deploy: OFF
