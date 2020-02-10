@@ -31,10 +31,14 @@ install:
   - scripts\build-appveyor.bat
 
 before_deploy:
-  - ps: Get-ChildItem .\release\*.zip | % { Push-AppveyorArtifact $_.FullName -FileName $_.Name }
+  - ps: Get-ChildItem .\release\*win-x64.zip | % { Push-AppveyorArtifact $_.FullName -FileName $_.Name }
 
 deploy:
   provider: S3
+  access_key_id:
+    secure: GIQzwkV21ZqWhzZ0ii13r4dOEZ6Pkq8r6Jajx18uEaY=
+  secret_access_key:
+    secure: 7sxn6236C/oltJYJfel3ISUxQfuBfB44QqdWs0Thjy+U3s+6MPugW8CGVlC8p0o8
   bucket: ziti-mattermozt-binaries
   region: us-east-1
   set_public: true
