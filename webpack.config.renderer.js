@@ -55,7 +55,15 @@ module.exports = merge(base, {
       ],
     }, {
       test: /\.node$/,
-      use: 'node-loader',
+      use: [
+        {
+          loader: 'native-addon-loader',
+          options: {
+            name: 'webview/[name]-[hash].[ext]', // default: '[name].[ext]'
+            from: 'webview', // default: '.'
+          }
+        }
+      ]
     }],
   },
   node: {
