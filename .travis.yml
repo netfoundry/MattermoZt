@@ -32,6 +32,9 @@ before_install:
 
 install:
 - npm install
+# if on Mac, import the necessary Apple DeveloperID cert into the keychain so code-signing & notarization works
+- if [ "$TRAVIS_OS_NAME" = osx ]; then chmod +x ./scripts/add-osx-cert.sh; fi
+- if [ "$TRAVIS_OS_NAME" = osx ]; then ./scripts/add-osx-cert.sh; fi
 # - npm run build
 - source ./scripts/package_and_publish.sh
 
