@@ -32,9 +32,9 @@
     "test": "echo \"skipping tests for now\"",
     "test:app": "cross-env NODE_ENV=production npm run build && mocha -r @babel/register --reporter mocha-circleci-reporter --recursive test/specs",
     "package:all": "cross-env NODE_ENV=production npm-run-all check-build-config package:windows package:mac package:linux",
-    "package:windows": "cross-env NODE_ENV=production npm-run-all check-build-config build && electron-builder --win --x64 --ia32 --publish=never",
+    "package:windows": "cross-env NODE_ENV=production npm-run-all check-build-config build && electron-builder --win --x64 --publish=never",
     "package:mac": "cross-env NODE_ENV=production npm-run-all check-build-config build && electron-builder --mac --publish=never",
-    "package:linux": "cross-env NODE_ENV=production npm-run-all check-build-config build && electron-builder --linux --x64 --ia32 --publish=never",
+    "package:linux": "cross-env NODE_ENV=production npm-run-all check-build-config build && electron-builder --linux --x64 --publish=never",
     "lint:js": "eslint --ignore-path .gitignore --ignore-pattern node_modules --ext .js --ext .jsx .",
     "lint:js-quiet": "eslint --ignore-path .gitignore --ignore-pattern node_modules --ext .js --ext .jsx . --quiet",
     "fix:js": "eslint --ignore-path .gitignore --ignore-pattern node_modules --quiet --ext .js --ext .jsx . --fix",
@@ -84,6 +84,6 @@
     "webpack-cli": "^3.1.2",
     "webpack-dev-server": "^3.1.14",
     "webpack-merge": "^4.1.4",
-    "ziti-electron-fetch": "^2.6.3"
+    "ziti-electron-fetch": "^2.6.4"
   }
 }

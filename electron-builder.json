@@ -33,8 +33,6 @@
   "linux": {
     "category": "Network;InstantMessaging",
     "target": [
-      "deb",
-      "tar.gz",
       "appimage"
     ],
     "extraFiles": [
@@ -57,7 +55,6 @@
   "mac": {
     "category": "public.app-category.productivity",
     "target": [
-      "zip",
       "dmg"
     ],
     "darkModeSupport": true,
@@ -95,7 +92,6 @@
   },
   "win": {
     "target": [
-      "nsis",
       "zip"
     ],
     "extraFiles": [
