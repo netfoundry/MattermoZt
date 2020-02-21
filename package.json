@@ -1,7 +1,7 @@
 {
   "name": "mattermost-desktop",
   "productName": "MattermoZt",
-  "version": "4.3.0-zitified-001",
+  "version": "4.3.0-3",
   "description": "MattermoZt",
   "main": "main.js",
   "author": "Mattermost, Inc. <feedback@mattermost.com>",
