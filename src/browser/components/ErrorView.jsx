@@ -40,7 +40,7 @@ export default function ErrorView(props) {
             >
               <h2>{`Cannot connect to ${remote.app.getName()}`}</h2>
               <hr/>
-              <p>{`We're having trouble connecting to ${remote.app.getName()}. If refreshing this page (Ctrl+R or Command+R) does not work please verify that:`}</p>
+              <p>{`We're having trouble connecting to ${remote.app.getName()}.  Please verify that:`}</p>
               <br/>
               <ul className='ErrorView-bullets' >
                 <li>{'Your computer is connected to the internet.'}</li>
@@ -51,13 +51,19 @@ export default function ErrorView(props) {
                   >
                     {props.errorInfo.validatedURL}
                   </a>{' is correct.'}</li>
-                <li>{'You can reach '}
+                <li>{'Your Ziti identity file path '}
+                  <a
+                    href={props.errorInfo.zitiIdentityPath}
+                  >
+                    {props.errorInfo.zitiIdentityPath}
+                  </a>{' is correct, and is a viable identity for the '}
                   <a
                     onClick={handleClick}
                     href={props.errorInfo.validatedURL}
                   >
                     {props.errorInfo.validatedURL}
-                  </a>{' from a browser window.'}</li>
+                  </a>{' system.'}
+                  </li>
               </ul>
               <br/>
               <div className='ErrorView-techInfo'>

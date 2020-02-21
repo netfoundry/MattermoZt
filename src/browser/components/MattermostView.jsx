@@ -142,6 +142,9 @@ export default class MattermostView extends React.Component {
     webview.addEventListener('dom-ready', () => {
       // webview.openDevTools();
 
+      // Make the location of the identify file available to the pre-load script
+      webview.executeJavaScript('window.zitiIdentityPath = "' + this.props.identity + '";');
+
       // Remove this once https://github.com/electron/electron/issues/14474 is fixed
       // - fixes missing cursor bug in electron
       // - only apply this focus fix if the current view is active
@@ -193,6 +196,20 @@ export default class MattermostView extends React.Component {
         break;
       case 'mouse-up':
         this.handleMouseUp();
+        break;
+
+      // If we receive a 'did-fail-load' event, it means that the preload script (or one of its dependents) has failed to complete the Ziti initialization
+      case 'did-fail-load':
+        const errorInfo = {
+          zitiIdentityPath: event.args[0].zitiIdentityPath,
+          errorDescription: event.args[0].errorDescription,
+          errorCode: event.args[0].errorCode,
+          validatedURL: webview.getURL(),
+        };
+        self.setState({
+          errorInfo,
+          isLoaded: true,
+        });
         break;
       }
     });
@@ -339,12 +356,21 @@ export default class MattermostView extends React.Component {
       classNames.push('mattermostView-hidden');
     }
 
+    const webView = this.state.errorInfo ? null : (
+      <webview
+        id={this.props.id}
+        preload={preloadJS}
+        src={this.props.src}
+        ref={this.webviewRef}
+      />
+    );
+
     const loadingImage = !this.state.errorInfo && this.props.active && !this.state.isLoaded ? (
       <div className='mattermostView-loadingScreen'>
         <img
           className='mattermostView-loadingImage'
-          src='../assets/loading.gif'
-          srcSet='../assets/loading.gif 1x, ../assets/loading@2x.gif 2x'
+          src='../assets/ziti-loading.gif'
+          srcSet='../assets/ziti-loading.gif 1x, ../assets/ziti-loading.gif 2x'
         />
       </div>
     ) : null;
@@ -354,12 +380,7 @@ export default class MattermostView extends React.Component {
         className={classNames.join(' ')}
       >
         { errorView }
-        <webview
-          id={this.props.id}
-          preload={preloadJS}
-          src={this.props.src}
-          ref={this.webviewRef}
-        />
+        { webView }
         { loadingImage }
       </div>);
   }
@@ -369,6 +390,7 @@ MattermostView.propTypes = {
   name: PropTypes.string,
   id: PropTypes.string,
   teams: PropTypes.array.isRequired,
+  identity: PropTypes.string,
   withTab: PropTypes.bool,
   onTargetURLChange: PropTypes.func,
   onBadgeChange: PropTypes.func,

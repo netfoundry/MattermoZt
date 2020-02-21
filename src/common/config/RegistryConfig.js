@@ -72,6 +72,7 @@ export default class RegistryConfig extends EventEmitter {
         teams.push({
           name: team.name,
           url: team.value,
+          identity: team.identity,
           order: team.order,
         });
       }

@@ -735,6 +735,7 @@ export default class MainPage extends React.Component {
           onSelectSpellCheckerLocale={this.props.onSelectSpellCheckerLocale}
           src={teamUrl}
           name={team.name}
+          identity={team.identity}
           onTargetURLChange={self.handleTargetURLChange}
           onBadgeChange={handleBadgeChange}
           onNotificationClick={handleNotificationClick}

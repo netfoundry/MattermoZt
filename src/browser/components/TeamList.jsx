@@ -18,6 +18,7 @@ export default class TeamList extends React.Component {
       indexToRemoveServer: -1,
       team: {
         url: '',
+        identity: '',
         name: '',
         index: false,
         order: props.teams.length,
@@ -45,6 +46,7 @@ export default class TeamList extends React.Component {
     if ((typeof team.index !== 'undefined') && teams[team.index]) {
       teams[team.index].name = team.name;
       teams[team.index].url = team.url;
+      teams[team.index].identity = team.identity;
       teams[team.index].order = team.order;
     } else {
       teams.push(team);
@@ -54,6 +56,7 @@ export default class TeamList extends React.Component {
       showEditTeamForm: false,
       team: {
         url: '',
+        identity: '',
         name: '',
         index: false,
         order: teams.length,
@@ -63,11 +66,12 @@ export default class TeamList extends React.Component {
     this.props.onTeamsChange(teams);
   }
 
-  handleTeamEditing = (teamName, teamUrl, teamIndex, teamOrder) => {
+  handleTeamEditing = (teamName, teamUrl, teamIdentity, teamIndex, teamOrder) => {
     this.setState({
       showEditTeamForm: true,
       team: {
         url: teamUrl,
+        identity: teamIdentity,
         name: teamName,
         index: teamIndex,
         order: teamOrder,
@@ -93,7 +97,7 @@ export default class TeamList extends React.Component {
 
       function handleTeamEditing() {
         document.activeElement.blur();
-        self.handleTeamEditing(team.name, team.url, i, team.order);
+        self.handleTeamEditing(team.name, team.url, team.identity, i, team.order);
       }
 
       function handleTeamClick() {
@@ -106,6 +110,7 @@ export default class TeamList extends React.Component {
           key={'teamListItem' + i}
           name={team.name}
           url={team.url}
+          identity={team.identity}
           onTeamRemove={handleTeamRemove}
           onTeamEditing={handleTeamEditing}
           onTeamClick={handleTeamClick}
@@ -124,6 +129,7 @@ export default class TeamList extends React.Component {
             team: {
               name: '',
               url: '',
+              identity: '',
               index: false,
               order: this.props.teams.length,
             },
@@ -134,6 +140,7 @@ export default class TeamList extends React.Component {
           const teamData = {
             name: newTeam.name,
             url: newTeam.url,
+            identity: newTeam.identity,
             order: newTeam.order,
           };
           if (this.props.showAddTeamForm) {
@@ -147,6 +154,7 @@ export default class TeamList extends React.Component {
             team: {
               name: '',
               url: '',
+              identity: '',
               index: false,
               order: newTeam.order + 1,
             },

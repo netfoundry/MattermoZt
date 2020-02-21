@@ -20,6 +20,7 @@ export default class NewTeamModal extends React.Component {
     this.state = {
       teamName: '',
       teamUrl: '',
+      teamIdentity: '',
       teamOrder: props.currentOrder || 0,
       saveStarted: false,
     };
@@ -29,6 +30,7 @@ export default class NewTeamModal extends React.Component {
     this.setState({
       teamName: this.props.team ? this.props.team.name : '',
       teamUrl: this.props.team ? this.props.team.url : '',
+      teamIdentity: this.props.team ? this.props.team.identity : '',
       teamIndex: this.props.team ? this.props.team.index : false,
       teamOrder: this.props.team ? this.props.team.order : (this.props.currentOrder || 0),
       saveStarted: false,
@@ -78,23 +80,44 @@ export default class NewTeamModal extends React.Component {
     });
   }
 
+  getTeamIdentityValidationError() {
+    if (!this.state.saveStarted) {
+      return null;
+    }
+    return this.state.teamIdentity.length > 0 ? null : 'Identity is required.';
+  }
+
+  getTeamIdentityValidationState() {
+    return this.getTeamIdentityValidationError() === null ? null : 'error';
+  }
+
+  handleTeamIdentityChange = (e) => {
+    this.setState({
+      teamIdentity: e.target.value,
+    });
+  }
+
   getError() {
     const nameError = this.getTeamNameValidationError();
     const urlError = this.getTeamUrlValidationError();
+    const identityError = this.getTeamIdentityValidationError();
 
-    if (nameError && urlError) {
-      return 'Name and URL are required.';
+    if (nameError && urlError && identityError) {
+      return 'Name and URL and Identity are required.';
     } else if (nameError) {
       return nameError;
     } else if (urlError) {
       return urlError;
+    } else if (identityError) {
+      return identityError;
     }
     return null;
   }
 
   validateForm() {
     return this.getTeamNameValidationState() === null &&
-           this.getTeamUrlValidationState() === null;
+      this.getTeamIdentityValidationState() === null &&
+      this.getTeamUrlValidationState() === null;
   }
 
   save = () => {
@@ -104,6 +127,7 @@ export default class NewTeamModal extends React.Component {
       if (this.validateForm()) {
         this.props.onSave({
           url: this.state.teamUrl,
+          identity: this.state.teamIdentity,
           name: this.state.teamName,
           index: this.state.teamIndex,
           order: this.state.teamOrder,
@@ -181,7 +205,6 @@ export default class NewTeamModal extends React.Component {
               <HelpBlock>{'The name of the server displayed on your desktop app tab bar.'}</HelpBlock>
             </FormGroup>
             <FormGroup
-              className='NewTeamModal-noBottomSpace'
               validationState={this.getTeamUrlValidationState()}
             >
               <ControlLabel>{'Server URL'}</ControlLabel>
@@ -196,8 +219,28 @@ export default class NewTeamModal extends React.Component {
                 }}
               />
               <FormControl.Feedback/>
-              <HelpBlock className='NewTeamModal-noBottomSpace'>{'The URL of your Mattermost server. Must start with http:// or https://.'}</HelpBlock>
+              <HelpBlock>{'The URL of your Mattermost server. Must start with http:// or https://.'}</HelpBlock>
             </FormGroup>
+
+            <FormGroup
+              className='NewTeamModal-noBottomSpace'
+              validationState={this.getTeamUrlValidationState()}
+            >
+              <ControlLabel>{'Path to Ziti identity.json file'}</ControlLabel>
+              <FormControl
+                id='teamIdentityInput'
+                type='text'
+                value={this.state.teamIdentity}
+                placeholder='/Users/you/identity.json'
+                onChange={this.handleTeamIdentityChange}
+                onClick={(e) => {
+                  e.stopPropagation();
+                }}
+              />
+              <FormControl.Feedback/>
+              <HelpBlock className='NewTeamModal-noBottomSpace'>{'The absolute PATH to your Ziti identity.json file associated with the above server.'}</HelpBlock>
+            </FormGroup>
+
           </form>
         </Modal.Body>
 
