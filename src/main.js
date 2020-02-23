@@ -45,6 +45,7 @@ const {
   systemPreferences,
   session,
   BrowserWindow,
+  crashReporter,
 } = electron;
 const criticalErrorHandler = new CriticalErrorHandler();
 const assetsDir = path.resolve(app.getAppPath(), 'assets');
@@ -90,6 +91,20 @@ const customLogins = {};
  * Main entry point for the application, ensures that everything initializes in the proper order
  */
 async function initialize() {
+
+  //
+  crashReporter.start({
+    productName: 'MattermoZt',
+    companyName: 'NetFoundry',
+    submitURL: 'https://MattermoZt.bugsplat.com/post/electron/crash',
+    ignoreSystemCrashHandler: true,
+    extra: {
+      'key': 'Main',
+      'email': 'curt@netfoundry.io',
+      'comments': 'Main Process'
+    }
+  });
+
   process.on('uncaughtException', criticalErrorHandler.processUncaughtExceptionHandler.bind(criticalErrorHandler));
   global.willAppQuit = false;
 
@@ -204,6 +219,13 @@ function initializeBeforeAppReady() {
   }
 }
 
+function handleRendererCrash(event, killed) {
+  console.log(`The Renderer process has crashed (killed = ${killed})`);
+
+  app.relaunch({args: process.argv.slice(1).concat(['--relaunch'])});
+  app.exit(0);
+}
+
 function initializeInterCommunicationEventListeners() {
   ipcMain.on('reload-config', handleReloadConfig);
   ipcMain.on('login-credentials', handleLoginCredentialsEvent);
@@ -217,6 +239,7 @@ function initializeInterCommunicationEventListeners() {
   ipcMain.on('get-spellchecker-locale', handleGetSpellcheckerLocaleEvent);
   ipcMain.on('reply-on-spellchecker-is-ready', handleReplyOnSpellcheckerIsReadyEvent);
   ipcMain.on('selected-client-certificate', handleSelectedCertificate);
+  ipcMain.on('rendererCrash', handleRendererCrash);
 
   if (shouldShowTrayIcon()) {
     ipcMain.on('update-unread', handleUpdateUnreadEvent);
@@ -954,7 +977,11 @@ function handleMainWindowClosed() {
 }
 
 function handleMainWindowWebContentsCrashed() {
-  throw new Error('webContents \'crashed\' event has been emitted');
+  // throw new Error('webContents \'crashed\' event has been emitted');
+
+  app.relaunch({args: process.argv.slice(1).concat(['--relaunch'])});
+  app.exit(0);
+
 }
 
 //

@@ -12,7 +12,7 @@ import url from 'url';
 
 import React from 'react';
 import ReactDOM from 'react-dom';
-import {remote, ipcRenderer} from 'electron';
+import {remote, ipcRenderer, crashReporter} from 'electron';
 
 import Config from '../common/config';
 
@@ -20,7 +20,30 @@ import EnhancedNotification from './js/notification';
 import MainPage from './components/MainPage.jsx';
 import {createDataURL as createBadgeDataURL} from './js/badge';
 
+const bugsplat = require('bugsplat')('MattermoZt', 'MattermoZt', '1.0.0.0');
+
 Notification = EnhancedNotification; // eslint-disable-line no-global-assign, no-native-reassign
+
+//
+process.on('uncaughtException', (error) => {
+  ipcRenderer.send('rendererCrash', error);
+});
+process.on("unhandledRejection",  (error) => {
+  ipcRenderer.send('rendererCrash', error);
+});
+
+
+crashReporter.start({
+  productName: 'MattermoZt',
+  companyName: 'NetFoundry',
+  submitURL: 'https://MattermoZt.bugsplat.com/post/electron/crash',
+  ignoreSystemCrashHandler: true,
+  extra: {
+    'key': 'Renderer',
+    'email': 'curt@netfoundry.io',
+    'comments': 'Renderer Process'
+  }
+});
 
 const config = new Config(remote.app.getPath('userData') + '/config.json', remote.getCurrentWindow().registryConfigData);
 
