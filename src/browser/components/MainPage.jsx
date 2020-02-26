@@ -30,6 +30,8 @@ import Finder from './Finder.jsx';
 import NewTeamModal from './NewTeamModal.jsx';
 import SelectCertificateModal from './SelectCertificateModal.jsx';
 
+const trackEvent = remote.getGlobal('trackEvent');
+
 export default class MainPage extends React.Component {
   constructor(props) {
     super(props);

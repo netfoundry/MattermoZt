@@ -10,6 +10,8 @@ import electron from 'electron';
 import isDev from 'electron-is-dev';
 import installExtension, {REACT_DEVELOPER_TOOLS} from 'electron-devtools-installer';
 import log from 'electron-log';
+import trackEvent from './analytics';
+global.trackEvent = trackEvent;
 
 import {protocols} from '../electron-builder.json';
 
@@ -32,6 +34,8 @@ import SpellChecker from './main/SpellChecker';
 import UserActivityMonitor from './main/UserActivityMonitor';
 import Utils from './utils/util';
 import parseArgs from './main/ParseArgs';
+import pjson from '../package.json';
+import username from 'username';
 
 // pull out required electron components like this
 // as not all components can be referenced before the app is ready
@@ -91,6 +95,11 @@ const customLogins = {};
  * Main entry point for the application, ensures that everything initializes in the proper order
  */
 async function initialize() {
+
+  //
+  trackEvent('desktop-start', 'User', username.sync());
+  trackEvent('desktop-start', 'Version', pjson.version);
+  trackEvent('desktop-start', 'OS', os.type());
 
   //
   crashReporter.start({

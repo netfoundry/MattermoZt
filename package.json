@@ -1,7 +1,7 @@
 {
   "name": "mattermost-desktop",
   "productName": "MattermoZt",
-  "version": "4.3.0-4",
+  "version": "4.3.0-5",
   "description": "MattermoZt",
   "main": "main.js",
   "author": "Mattermost, Inc. <feedback@mattermost.com>",
@@ -88,6 +88,9 @@
   },
   "dependencies": {
     "bugsplat": "^3.0.0",
-    "electron-updater": "^4.2.2"
+    "electron-updater": "^4.2.2",
+    "node-localstorage": "^2.1.5",
+    "universal-analytics": "^0.4.20",
+    "username": "^5.1.0"
   }
 }

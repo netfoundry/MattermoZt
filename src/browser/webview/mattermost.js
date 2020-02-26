@@ -10,6 +10,8 @@ import 'ziti-electron-fetch';
 
 import {ipcRenderer, webFrame, remote} from 'electron';
 
+const trackEvent = remote.getGlobal('trackEvent');
+
 const UNREAD_COUNT_INTERVAL = 1000;
 const CLEAR_CACHE_INTERVAL = 6 * 60 * 60 * 1000; // 6 hours
 
