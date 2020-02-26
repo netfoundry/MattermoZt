@@ -20,3 +20,4 @@ src/browser/*.svg
 src/browser/*.woff2
 
 *.node
+.vscode/
