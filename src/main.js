@@ -10,8 +10,11 @@ import electron from 'electron';
 import isDev from 'electron-is-dev';
 import installExtension, {REACT_DEVELOPER_TOOLS} from 'electron-devtools-installer';
 import log from 'electron-log';
+
 import trackEvent from './analytics';
 global.trackEvent = trackEvent;
+
+import autoUpdater from './main/autoUpdater';
 
 import {protocols} from '../electron-builder.json';
 
@@ -188,6 +191,14 @@ function initializeAppEventListeners() {
   app.on('login', handleAppLogin);
   app.on('will-finish-launching', handleAppWillFinishLaunching);
   app.on('web-contents-created', handleAppWebContentsCreated);
+  app.on('ready', () => {
+    setTimeout(() => {
+      autoUpdater.initialize();
+    }, 1000*30);
+    setTimeout(() => {
+      autoUpdater.checkForUpdates(false);
+    }, 1000*60);
+  });
 }
 
 function initializeBeforeAppReady() {
@@ -242,6 +253,7 @@ function initializeInterCommunicationEventListeners() {
   ipcMain.on('notified', handleNotifiedEvent);
   ipcMain.on('update-title', handleUpdateTitleEvent);
   ipcMain.on('update-menu', handleUpdateMenuEvent);
+  ipcMain.on('auto-updater-menu', handleAutoUpdaterMenuEvent);
   ipcMain.on('update-dict', handleUpdateDictionaryEvent);
   ipcMain.on('checkspell', handleCheckSpellingEvent);
   ipcMain.on('get-spelling-suggestions', handleGetSpellingSuggestionsEvent);
@@ -899,6 +911,7 @@ function handleCloseAppMenu(event) {
 }
 
 function handleUpdateMenuEvent(event, configData) {
+  log.info('handleUpdateMenuEvent entered, event is: ', event);
   const aMenu = appMenu.createMenu(mainWindow, configData, global.isDev);
   Menu.setApplicationMenu(aMenu);
   aMenu.addListener('menu-will-close', handleCloseAppMenu);
@@ -919,6 +932,14 @@ function handleUpdateMenuEvent(event, configData) {
       trayIcon.setContextMenu(tMenu);
     }
   }
+}
+
+function handleAutoUpdaterMenuEvent(event) {
+  log.info('handleAutoUpdaterMenuEvent entered, event is: ', event);
+  if (event === true) {
+    return;
+  }
+  appMenu.adjustAutoUpdaterMenu(mainWindow, event);
 }
 
 // localeSelected might be null, if that's the case, use config's locale

@@ -5,16 +5,16 @@
 import path from 'path';
 
 import {app, BrowserWindow, dialog, ipcMain, shell} from 'electron';
-
+import isDev from 'electron-is-dev';
 import logger from 'electron-log';
 import {autoUpdater, CancellationToken} from 'electron-updater';
 import semver from 'semver';
 
 // eslint-disable-next-line no-magic-numbers
-const UPDATER_INTERVAL_IN_MS = 48 * 60 * 60 * 1000; // 48 hours
+const UPDATER_INTERVAL_IN_MS = 2 * 60 * 60 * 1000; // 2 hours
 
 autoUpdater.logger = logger;
-autoUpdater.logger.transports.file.level = 'info';
+autoUpdater.logger.transports.file.level = 'debug';
 
 let updaterModal = null;
 
@@ -84,66 +84,71 @@ function isUpdateApplicable(now, skippedVersion, updateInfo) {
 }
 
 function downloadAndInstall(cancellationToken) {
+  logger.info('autoUpdater: downloadAndInstall() entered');
+
   autoUpdater.on('update-downloaded', () => {
+    logger.info('autoUpdater.on update-downloaded entered');
     global.willAppQuit = true;
-    autoUpdater.quitAndInstall();
+    autoUpdater.quitAndInstall(true, true);
   });
   autoUpdater.downloadUpdate(cancellationToken);
 }
 
 function initialize(appState, mainWindow, notifyOnly = false) {
+  logger.info('autoUpdater: initialize() entered');
+
+  if (isDev) {
+    // Useful for some dev/debugging tasks
+    logger.info('autoUpdater: initialize(), using: ', path.join(__dirname, 'dev-app-update.yml'));
+    autoUpdater.updateConfigPath = path.join(__dirname, 'dev-app-update.yml');
+  }
+
   autoUpdater.autoDownload = false; // To prevent upgrading on quit
   const assetsDir = path.resolve(app.getAppPath(), 'assets');
+  
   autoUpdater.on('error', (err) => {
+    logger.info('autoUpdater: on.error entered, err is: ', err);
     console.error('Error in autoUpdater:', err.message);
+
   }).on('update-available', (info) => {
+    logger.info('autoUpdater: on.update-available entered, info is: ', info);
+
     let cancellationToken = null;
-    if (isUpdateApplicable(new Date(), appState.skippedVersion, info)) {
-      updaterModal = createUpdaterModal(mainWindow, {
-        linuxAppIcon: path.join(assetsDir, 'appicon.png'),
-        notifyOnly,
-      });
-      updaterModal.on('closed', () => {
-        updaterModal = null;
-      });
-      updaterModal.on('click-skip', () => {
-        appState.skippedVersion = info.version;
-        updaterModal.close();
-      }).on('click-remind', () => {
-        appState.updateCheckedDate = new Date();
-        setTimeout(() => { // eslint-disable-line max-nested-callbacks
-          autoUpdater.checkForUpdates();
-        }, UPDATER_INTERVAL_IN_MS);
-        updaterModal.close();
-      }).on('click-install', () => {
-        updaterModal.webContents.send('start-download');
-        autoUpdater.signals.progress((data) => { // eslint-disable-line max-nested-callbacks
-          updaterModal.send('progress', Math.floor(data.percent));
-          console.log('progress:', data);
-        });
+
+    dialog.showMessageBox({
+      type: 'info',
+      title: 'Found Updates',
+      message: 'New updates are available, do you want update to (' + info.version + ') now?',
+      defaultId: 0,
+      cancelId: 1,
+      buttons: ['Yes', 'No']
+    }, (buttonIndex) => {
+      if (buttonIndex === 0) {
+        logger.info('autoUpdater: on.update-available MessageBox said YES to update');
         cancellationToken = new CancellationToken();
         downloadAndInstall(cancellationToken);
-      }).on('click-download', () => {
-        shell.openExternal('https://about.mattermost.com/download/#mattermostApps');
-      }).on('click-release-notes', () => {
-        shell.openExternal(`https://github.com/mattermost/desktop/releases/v${info.version}`);
-      }).on('click-cancel', () => {
-        cancellationToken.cancel();
-        updaterModal.close();
-      });
-      updaterModal.focus();
-    } else if (autoUpdater.isManual) {
-      autoUpdater.emit('update-not-available');
-    }
-  }).on('update-not-available', () => {
+      } 
+      else {
+        logger.info('autoUpdater: on.update-available MessageBox said NO to update');
+        ipcMain.emit('auto-updater-menu', {type: 'update-is-available'});
+      }
+    });
+  
+    logger.info('autoUpdater: on.update-available after dialog.showMessageBox');
+
+  }).on('update-not-available', (event) => {
+    logger.info('autoUpdater: on.update-not-available, event is: ', event);
     if (autoUpdater.isManual) {
-      dialog.showMessageBox(mainWindow, {
+      dialog.showMessageBox({
         type: 'info',
         buttons: ['Close'],
         title: 'Your Desktop App is up to date',
-        message: 'You have the latest version of the Mattermost Desktop App.',
+        message: 'You have the latest version (' + event.version + ') of the MattermoZt Desktop App.',
       }, () => {}); // eslint-disable-line no-empty-function
     }
+
+    ipcMain.emit('auto-updater-menu', {type: 'update-not-available'});
+
     setTimeout(() => {
       autoUpdater.checkForUpdates();
     }, UPDATER_INTERVAL_IN_MS);
@@ -160,6 +165,7 @@ function shouldCheckForUpdatesOnStart(updateCheckedDate) {
 }
 
 function checkForUpdates(isManual = false) {
+  logger.info('autoUpdater: checkForUpdates() entered');
   autoUpdater.isManual = isManual;
   if (!updaterModal) {
     autoUpdater.checkForUpdates();
@@ -190,6 +196,7 @@ export default {
   UPDATER_INTERVAL_IN_MS,
   checkForUpdates,
   shouldCheckForUpdatesOnStart,
+  downloadAndInstall,
   initialize,
   loadConfig,
 };

@@ -11,6 +11,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import {ipcRenderer, remote, shell} from 'electron';
 import log from 'electron-log';
+import * as dbg from 'debug';
+const debug = dbg('ziti');
 
 import contextMenu from '../js/contextMenu';
 import Utils from '../../utils/util';
@@ -73,6 +75,8 @@ export default class MattermostView extends React.Component {
     const webview = this.webviewRef.current;
 
     webview.addEventListener('did-fail-load', (e) => {
+      debug('EVENT: did-fail-load (%o)', e);
+
       console.log(self.props.name, 'webview did-fail-load', e);
       if (e.errorCode === -3) { // An operation was aborted (due to user action).
         return;
@@ -143,6 +147,7 @@ export default class MattermostView extends React.Component {
       // webview.openDevTools();
 
       // Make the location of the identify file available to the pre-load script
+      debug('setting window.zitiIdentityPath (%o)', this.props.identity);
       webview.executeJavaScript('window.zitiIdentityPath = "' + this.props.identity + '";');
 
       // Remove this once https://github.com/electron/electron/issues/14474 is fixed

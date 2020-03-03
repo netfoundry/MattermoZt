@@ -1,8 +1,9 @@
 {
-  "publish": [{
-    "provider": "generic",
-    "url": "https://releases.mattermost.com/desktop/"
-  }],
+  "publish": {
+    "provider": "s3",
+    "bucket": "ziti-mattermozt-binaries",
+    "region": "us-east-1"
+  },  
   "appId": "Mattermost.Desktop",
   "artifactName": "${name}-${version}-${os}-${arch}.${ext}",
   "directories": {
@@ -55,7 +56,8 @@
   "mac": {
     "category": "public.app-category.productivity",
     "target": [
-      "dmg"
+      "dmg",
+      "zip"
     ],
     "darkModeSupport": true,
     "extraResources": [
@@ -92,7 +94,7 @@
   },
   "win": {
     "target": [
-      "zip"
+      "nsis"
     ],
     "extraFiles": [
       {

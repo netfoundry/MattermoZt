@@ -4,6 +4,15 @@
 'use strict';
 
 import {app, dialog, Menu, shell} from 'electron';
+import logger from 'electron-log';
+import {CancellationToken} from 'electron-updater';
+
+import autoUpdater from '../autoUpdater';
+
+global.menuCheckForUpdatesEnabled = false;
+global.menuCheckForUpdatesVisible = true;
+global.menuUpdatesAreAvailableEnabled = false;
+global.menuUpdatesAreAvailableVisible = false;
 
 function createTemplate(mainWindow, config, isDev) {
   const settingsURL = isDev ? 'http://localhost:8080/browser/settings.html' : `file://${app.getAppPath()}/browser/settings.html`;
@@ -24,6 +33,25 @@ function createTemplate(mainWindow, config, isDev) {
         buttons: ['OK'],
         message: `${appName} Desktop ${app.getVersion()}`,
       });
+    },
+  }, {
+    label: 'Check for updates',
+    id: 'check-for-updates',
+    enabled: global.menuCheckForUpdatesEnabled,
+    visible: global.menuCheckForUpdatesVisible,
+    key: 'checkForUpdate',
+    click() {
+      autoUpdater.checkForUpdates(true);
+    },
+  }, {
+    label: 'Updates are available',
+    id: 'updates-are-available',
+    enabled: global.menuUpdatesAreAvailableEnabled,
+    visible: global.menuUpdatesAreAvailableVisible,
+    key: 'restartToUpdate',
+    click() {
+      let cancellationToken = new CancellationToken();
+      autoUpdater.downloadAndInstall(cancellationToken);
     },
   }, separatorItem, {
     label: 'Preferences...',
@@ -287,6 +315,70 @@ function createMenu(mainWindow, config, isDev) {
   return Menu.buildFromTemplate(createTemplate(mainWindow, config, isDev));
 }
 
+function adjustAutoUpdaterMenu(mainWindow, event) {
+
+  const menu = Menu.getApplicationMenu();
+  if (!menu) {
+    return;
+  };
+
+  let item;
+
+  switch (event.type) {
+  case 'update-not-available':
+    logger.info('adjustAutoUpdaterMenu: processing (update-not-available) event');
+
+    global.menuCheckForUpdatesEnabled = true;
+    global.menuCheckForUpdatesVisible = true;
+    global.menuUpdatesAreAvailableEnabled = false;
+    global.menuUpdatesAreAvailableVisible = false;
+
+    item = menu.getMenuItemById('check-for-updates');
+    if (item) {
+      item.enabled = true;
+      item.visible = true;
+    }
+
+    item = menu.getMenuItemById('updates-are-available');
+    if (item) {
+      item.enabled = false;
+      item.visible = false;
+
+      Menu.setApplicationMenu(menu);
+    }
+
+    break;
+  case 'update-is-available':
+    logger.info('adjustAutoUpdaterMenu: processing (update-is-available) event');
+
+    global.menuCheckForUpdatesEnabled = false;
+    global.menuCheckForUpdatesVisible = false;
+    global.menuUpdatesAreAvailableEnabled = true;
+    global.menuUpdatesAreAvailableVisible = true;
+
+    item = menu.getMenuItemById('check-for-updates');
+    if (item) {
+      item.enabled = false;
+      item.visible = false;
+    }
+
+    item = menu.getMenuItemById('updates-are-available');
+    if (item) {
+      item.enabled = true;
+      item.visible = true;
+
+      Menu.setApplicationMenu(menu);
+    }
+
+    break;
+  default:
+    logger.error('adjustAutoUpdaterMenu: unknown event.type: ', event.type);
+    throw new Error('Unknown event.type of ', event.type);
+  }
+
+}
+
 export default {
   createMenu,
+  adjustAutoUpdaterMenu,
 };
