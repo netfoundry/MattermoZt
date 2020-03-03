@@ -5,13 +5,13 @@ echo "OSTYPE is: $OSTYPE"
 if [[ "$OSTYPE" == "linux-gnu" ]]; then
     echo "OSTYPE is supported";
 
-    # npm run package:linux
+    npm run package:linux
     npm run publish:linux
 
 elif [[ "$OSTYPE" == "darwin"* ]]; then
     echo "OSTYPE is supported";
 
-    # npm run package:mac
+    npm run package:mac
     npm run publish:mac
 
 elif [[ "$OSTYPE" == "cygwin" ]]; then
@@ -26,7 +26,7 @@ elif [[ "$OSTYPE" == "win32" ]]; then
 elif [[ "$OSTYPE" == "freebsd"* ]]; then
     echo "OSTYPE is supported";
 
-    # npm run package:linux
+    npm run package:linux
     npm run publish:linux
 
 else

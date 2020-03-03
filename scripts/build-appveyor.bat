@@ -83,7 +83,7 @@ ECHO ===== conditional node-gyp upgrade END ============
 :: build MattermoZt
 CALL npm install
 IF %ERRORLEVEL% NEQ 0 GOTO ERROR
-REM CALL npm run package:windows
+CALL npm run package:windows
 CALL npm run publish:windows
 IF %ERRORLEVEL% NEQ 0 GOTO ERROR
 
