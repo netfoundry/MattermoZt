@@ -27,4 +27,4 @@ install:
 - npm install
 - if [ "$TRAVIS_OS_NAME" = osx ]; then chmod +x ./scripts/add-osx-cert.sh; fi
 - if [ "$TRAVIS_OS_NAME" = osx ]; then ./scripts/add-osx-cert.sh; fi
-- source ./scripts/package_and_publish.sh
+- travis_wait 30 source ./scripts/package_and_publish.sh
