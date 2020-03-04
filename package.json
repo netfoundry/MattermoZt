@@ -35,6 +35,7 @@
     "package:all": "cross-env NODE_ENV=production npm-run-all check-build-config package:windows package:mac package:linux",
     "package:windows": "cross-env NODE_ENV=production npm-run-all check-build-config build && electron-builder --win --x64 --publish=never",
     "package:mac": "cross-env NODE_ENV=production npm-run-all check-build-config build && electron-builder --mac --publish=never",
+    "packageandpublish:mac": "cross-env NODE_ENV=production npm-run-all check-build-config build && electron-builder --mac --publish=always",
     "package:linux": "cross-env NODE_ENV=production npm-run-all check-build-config build && electron-builder --linux --x64 --publish=never",
     "publish:all": "cross-env NODE_ENV=production npm-run-all check-build-config publish:windows publish:mac publish:linux",
     "publish:mac": "electron-builder --mac -p always",

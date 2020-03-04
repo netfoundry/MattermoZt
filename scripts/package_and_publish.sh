@@ -11,8 +11,7 @@ if [[ "$OSTYPE" == "linux-gnu" ]]; then
 elif [[ "$OSTYPE" == "darwin"* ]]; then
     echo "OSTYPE is supported";
 
-    npm run package:mac
-    npm run publish:mac
+    npm run packageandpublish:mac
 
 elif [[ "$OSTYPE" == "cygwin" ]]; then
     # POSIX compatibility layer and Linux environment emulation for Windows
