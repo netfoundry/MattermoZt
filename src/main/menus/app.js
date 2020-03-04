@@ -12,7 +12,7 @@ import autoUpdater from '../autoUpdater';
 global.menuCheckForUpdatesEnabled = false;
 global.menuCheckForUpdatesVisible = true;
 global.menuUpdatesAreAvailableEnabled = false;
-global.menuUpdatesAreAvailableVisible = false;
+global.menuUpdatesAreAvailableVisible = true;
 
 function createTemplate(mainWindow, config, isDev) {
   const settingsURL = isDev ? 'http://localhost:8080/browser/settings.html' : `file://${app.getAppPath()}/browser/settings.html`;
@@ -348,17 +348,17 @@ function adjustAutoUpdaterMenu(mainWindow, event) {
     logger.info('adjustAutoUpdaterMenu: processing (update-not-available) event');
 
     global.menuCheckForUpdatesEnabled = true;
-    global.menuCheckForUpdatesVisible = true;
+    // global.menuCheckForUpdatesVisible = true;
     global.menuUpdatesAreAvailableEnabled = false;
-    global.menuUpdatesAreAvailableVisible = false;
+    // global.menuUpdatesAreAvailableVisible = false;
 
     item = menu.getMenuItemById('check-for-updates');
     item.enabled = true;
-    item.visible = true;
+    // item.visible = true;
 
     item = menu.getMenuItemById('updates-are-available');
     item.enabled = false;
-    item.visible = false;
+    // item.visible = false;
 
     Menu.setApplicationMenu(menu);
 
@@ -367,17 +367,17 @@ function adjustAutoUpdaterMenu(mainWindow, event) {
     logger.info('adjustAutoUpdaterMenu: processing (update-is-available) event');
 
     global.menuCheckForUpdatesEnabled = false;
-    global.menuCheckForUpdatesVisible = false;
+    // global.menuCheckForUpdatesVisible = false;
     global.menuUpdatesAreAvailableEnabled = true;
-    global.menuUpdatesAreAvailableVisible = true;
+    // global.menuUpdatesAreAvailableVisible = true;
 
     item = menu.getMenuItemById('check-for-updates');
     item.enabled = false;
-    item.visible = false;
+    // item.visible = false;
 
     item = menu.getMenuItemById('updates-are-available');
     item.enabled = true;
-    item.visible = true;
+    // item.visible = true;
 
     Menu.setApplicationMenu(menu);
 

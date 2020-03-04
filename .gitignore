@@ -21,3 +21,5 @@ src/browser/*.woff2
 
 *.node
 .vscode/
+~minio-data/
+dev-app-update.yml
