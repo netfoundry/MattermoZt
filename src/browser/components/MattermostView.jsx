@@ -372,11 +372,20 @@ export default class MattermostView extends React.Component {
 
     const loadingImage = !this.state.errorInfo && this.props.active && !this.state.isLoaded ? (
       <div className='mattermostView-loadingScreen'>
-        <img
-          className='mattermostView-loadingImage'
-          src='../assets/ziti-loading.gif'
-          srcSet='../assets/ziti-loading.gif 1x, ../assets/ziti-loading.gif 2x'
-        />
+        <div className="container">
+          <div className="row">
+            <div className="container">
+              <div className="row">
+                <div className="ziti-load pinkBg">
+                  <div className="zitilogo"></div>
+                  <span className="ripple bluepinkbg"></span>
+                  <span className="ripple bluepinkbg"></span>
+                  <span className="ripple bluepinkbg"></span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     ) : null;
 
