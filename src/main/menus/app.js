@@ -50,7 +50,7 @@ function createTemplate(mainWindow, config, isDev) {
     visible: global.menuUpdatesAreAvailableVisible,
     key: 'restartToUpdate',
     click() {
-      let cancellationToken = new CancellationToken();
+      const cancellationToken = new CancellationToken();
       autoUpdater.downloadAndInstall(cancellationToken);
     },
   }, separatorItem, {
@@ -64,6 +64,25 @@ function createTemplate(mainWindow, config, isDev) {
     accelerator: 'CmdOrCtrl+,',
     click() {
       mainWindow.loadURL(settingsURL);
+    },
+  }, {
+    label: 'Check for updates',
+    id: 'check-for-updates',
+    enabled: global.menuCheckForUpdatesEnabled,
+    visible: global.menuCheckForUpdatesVisible,
+    key: 'checkForUpdate',
+    click() {
+      autoUpdater.checkForUpdates(true);
+    },
+  }, {
+    label: 'Updates are available',
+    id: 'updates-are-available',
+    enabled: global.menuUpdatesAreAvailableEnabled,
+    visible: global.menuUpdatesAreAvailableVisible,
+    key: 'restartToUpdate',
+    click() {
+      const cancellationToken = new CancellationToken();
+      autoUpdater.downloadAndInstall(cancellationToken);
     },
   }];
 
@@ -334,18 +353,14 @@ function adjustAutoUpdaterMenu(mainWindow, event) {
     global.menuUpdatesAreAvailableVisible = false;
 
     item = menu.getMenuItemById('check-for-updates');
-    if (item) {
-      item.enabled = true;
-      item.visible = true;
-    }
+    item.enabled = true;
+    item.visible = true;
 
     item = menu.getMenuItemById('updates-are-available');
-    if (item) {
-      item.enabled = false;
-      item.visible = false;
+    item.enabled = false;
+    item.visible = false;
 
-      Menu.setApplicationMenu(menu);
-    }
+    Menu.setApplicationMenu(menu);
 
     break;
   case 'update-is-available':
@@ -357,18 +372,14 @@ function adjustAutoUpdaterMenu(mainWindow, event) {
     global.menuUpdatesAreAvailableVisible = true;
 
     item = menu.getMenuItemById('check-for-updates');
-    if (item) {
-      item.enabled = false;
-      item.visible = false;
-    }
+    item.enabled = false;
+    item.visible = false;
 
     item = menu.getMenuItemById('updates-are-available');
-    if (item) {
-      item.enabled = true;
-      item.visible = true;
+    item.enabled = true;
+    item.visible = true;
 
-      Menu.setApplicationMenu(menu);
-    }
+    Menu.setApplicationMenu(menu);
 
     break;
   default:

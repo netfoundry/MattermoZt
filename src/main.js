@@ -194,10 +194,10 @@ function initializeAppEventListeners() {
   app.on('ready', () => {
     setTimeout(() => {
       autoUpdater.initialize();
-    }, 1000*30);
+    }, 1000*10);
     setTimeout(() => {
       autoUpdater.checkForUpdates(false);
-    }, 1000*60);
+    }, 1000*30);
   });
 }
 
@@ -240,10 +240,11 @@ function initializeBeforeAppReady() {
 }
 
 function handleRendererCrash(event, killed) {
-  console.log(`The Renderer process has crashed (killed = ${killed})`);
+  console.log('The Renderer process has crashed, event is: ', event);
+  console.log('The Renderer process has crashed, killed is: ', killed);
 
-  app.relaunch({args: process.argv.slice(1).concat(['--relaunch'])});
-  app.exit(0);
+  // app.relaunch({args: process.argv.slice(1).concat(['--relaunch'])});
+  // app.exit(0);
 }
 
 function initializeInterCommunicationEventListeners() {
@@ -915,6 +916,7 @@ function handleUpdateMenuEvent(event, configData) {
   const aMenu = appMenu.createMenu(mainWindow, configData, global.isDev);
   Menu.setApplicationMenu(aMenu);
   aMenu.addListener('menu-will-close', handleCloseAppMenu);
+  log.info('handleUpdateMenuEvent menu creation successful');
 
   // set up context menu for tray icon
   if (shouldShowTrayIcon()) {
