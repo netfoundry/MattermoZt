@@ -150,7 +150,7 @@ function initialize(appState, mainWindow, notifyOnly = false) {
     ipcMain.emit('auto-updater-menu', {type: 'update-not-available'});
 
     setTimeout(() => {
-      autoUpdater.checkForUpdates();
+      checkForUpdates(false);
     }, UPDATER_INTERVAL_IN_MS);
   });
 }
