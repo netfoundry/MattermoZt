@@ -3,8 +3,13 @@
 // See LICENSE.txt for license information.
 
 import React from 'react';
+import path from 'path';
+import electron from 'electron';
 import PropTypes from 'prop-types';
-import {Modal, Button, FormGroup, FormControl, ControlLabel, HelpBlock} from 'react-bootstrap';
+import {Modal, Button, FormGroup, FormControl, ControlLabel, HelpBlock, Image} from 'react-bootstrap';
+import {remote} from 'electron';
+
+const assetsDir = path.resolve(remote.app.getAppPath(), 'assets');
 
 import Utils from '../../utils/util';
 
@@ -18,8 +23,8 @@ export default class NewTeamModal extends React.Component {
 
     this.wasShown = false;
     this.state = {
-      teamName: '',
-      teamUrl: '',
+      teamName: 'MattermoZt',
+      teamUrl: 'https://mattermost.ziti.netfoundry.io',
       teamIdentity: '',
       teamOrder: props.currentOrder || 0,
       saveStarted: false,
@@ -28,8 +33,8 @@ export default class NewTeamModal extends React.Component {
 
   initializeOnShow() {
     this.setState({
-      teamName: this.props.team ? this.props.team.name : '',
-      teamUrl: this.props.team ? this.props.team.url : '',
+      teamName: this.props.team ? this.props.team.name : 'MattermoZt',
+      teamUrl: this.props.team ? this.props.team.url : 'https://mattermost.ziti.netfoundry.io',
       teamIdentity: this.props.team ? this.props.team.identity : '',
       teamIndex: this.props.team ? this.props.team.index : false,
       teamOrder: this.props.team ? this.props.team.order : (this.props.currentOrder || 0),
@@ -84,7 +89,7 @@ export default class NewTeamModal extends React.Component {
     if (!this.state.saveStarted) {
       return null;
     }
-    return this.state.teamIdentity.length > 0 ? null : 'Identity is required.';
+    return this.state.teamIdentity.length > 0 ? null : 'enrollment-token is required.';
   }
 
   getTeamIdentityValidationState() {
@@ -187,9 +192,33 @@ export default class NewTeamModal extends React.Component {
         <Modal.Body>
           <form>
             <FormGroup
+              validationState={this.getTeamUrlValidationState()}
+            >
+              <ControlLabel>{'Ziti enrollment-token file'}</ControlLabel>
+              <div className='InputRow'>
+                <Image src={path.join(assetsDir, 'ziti-man.png')} width='40px' />
+                <FormControl
+                  id='teamIdentityInput'
+                  type='text'
+                  value={this.state.teamIdentity}
+                  placeholder='e.g. /Users/you/you.jwt'
+                  onChange={this.handleTeamIdentityChange}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                  }}
+                />
+                <Image src={path.join(assetsDir, 'ziti-logo.png')} width='35px' />
+              </div>
+              <FormControl.Feedback/>
+              <HelpBlock className='NewTeamModal-noBottomSpace'>{'Enter the absolute PATH to your Ziti enrollment-token file.'}</HelpBlock>
+              <br/>
+              <br/>
+            </FormGroup>
+
+            <FormGroup
               validationState={this.getTeamNameValidationState()}
             >
-              <ControlLabel>{'Server Display Name'}</ControlLabel>
+              <ControlLabel>{'Server Display Name (you do not need to change this)'}</ControlLabel>
               <FormControl
                 id='teamNameInput'
                 type='text'
@@ -204,11 +233,14 @@ export default class NewTeamModal extends React.Component {
               <FormControl.Feedback/>
               <HelpBlock>{'The name of the server displayed on your desktop app tab bar.'}</HelpBlock>
             </FormGroup>
+
             <FormGroup
+              className='NewTeamModal-noBottomSpace'
               validationState={this.getTeamUrlValidationState()}
             >
-              <ControlLabel>{'Server URL'}</ControlLabel>
+              <ControlLabel>{'Server URL (you SHOULD NOT change this)'}</ControlLabel>
               <FormControl
+                disabled={true}
                 id='teamUrlInput'
                 type='text'
                 value={this.state.teamUrl}
@@ -219,26 +251,7 @@ export default class NewTeamModal extends React.Component {
                 }}
               />
               <FormControl.Feedback/>
-              <HelpBlock>{'The URL of your Mattermost server. Must start with http:// or https://.'}</HelpBlock>
-            </FormGroup>
-
-            <FormGroup
-              className='NewTeamModal-noBottomSpace'
-              validationState={this.getTeamUrlValidationState()}
-            >
-              <ControlLabel>{'Path to Ziti identity.json file'}</ControlLabel>
-              <FormControl
-                id='teamIdentityInput'
-                type='text'
-                value={this.state.teamIdentity}
-                placeholder='/Users/you/identity.json'
-                onChange={this.handleTeamIdentityChange}
-                onClick={(e) => {
-                  e.stopPropagation();
-                }}
-              />
-              <FormControl.Feedback/>
-              <HelpBlock className='NewTeamModal-noBottomSpace'>{'The absolute PATH to your Ziti identity.json file associated with the above server.'}</HelpBlock>
+              <HelpBlock>{'The URL of the MattermoZt server. Must start with http:// or https://.'}</HelpBlock>
             </FormGroup>
 
           </form>

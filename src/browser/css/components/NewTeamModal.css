@@ -2,3 +2,15 @@
   padding-bottom: 0px;
   margin-bottom: 0px;
 }
+
+#teamIdentityInput {
+  /* background-color: linear-gradient (to right, #0027ab 0%, #fe0029 100%); */
+  background: linear-gradient(to right, #0027ab 0%, #fe0029 100%);
+  color: white;
+}
+
+.InputRow {
+  display: flex;
+  align-items: center;
+  height: 32px;
+}

@@ -51,12 +51,12 @@ export default function ErrorView(props) {
                   >
                     {props.errorInfo.validatedURL}
                   </a>{' is correct.'}</li>
-                <li>{'Your Ziti identity file path '}
+                <li>{'Your Ziti enrollment-token file path '}
                   <a
                     href={props.errorInfo.zitiIdentityPath}
                   >
                     {props.errorInfo.zitiIdentityPath}
-                  </a>{' is correct, and is a viable identity for the '}
+                  </a>{' is correct, and is a viable enrollment-token for the '}
                   <a
                     onClick={handleClick}
                     href={props.errorInfo.validatedURL}

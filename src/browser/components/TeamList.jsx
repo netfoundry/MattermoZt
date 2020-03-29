@@ -17,9 +17,9 @@ export default class TeamList extends React.Component {
       showEditTeamForm: false,
       indexToRemoveServer: -1,
       team: {
-        url: '',
+        url: 'https://mattermost.ziti.netfoundry.io',
         identity: '',
-        name: '',
+        name: 'MattermoZt',
         index: false,
         order: props.teams.length,
       },
@@ -55,9 +55,9 @@ export default class TeamList extends React.Component {
     this.setState({
       showEditTeamForm: false,
       team: {
-        url: '',
+        url: 'https://mattermost.ziti.netfoundry.io',
         identity: '',
-        name: '',
+        name: 'MattermoZt',
         index: false,
         order: teams.length,
       },
@@ -127,9 +127,9 @@ export default class TeamList extends React.Component {
           this.setState({
             showEditTeamForm: false,
             team: {
-              name: '',
-              url: '',
+              url: 'https://mattermost.ziti.netfoundry.io',
               identity: '',
+              name: 'MattermoZt',
               index: false,
               order: this.props.teams.length,
             },
@@ -152,9 +152,9 @@ export default class TeamList extends React.Component {
             showNewTeamModal: false,
             showEditTeamForm: false,
             team: {
-              name: '',
-              url: '',
+              url: 'https://mattermost.ziti.netfoundry.io',
               identity: '',
+              name: 'MattermoZt',
               index: false,
               order: newTeam.order + 1,
             },

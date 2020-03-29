@@ -23,7 +23,7 @@ export default class TeamListItem extends React.Component {
             { this.props.url }
           </p>
           <p className='list-group-item-text'>
-            {'Path to Ziti identity.json file: '}{ this.props.identity }
+            {'Path to Ziti enrollment-token file: '}{ this.props.identity }
           </p>
         </div>
         <div className='pull-right'>

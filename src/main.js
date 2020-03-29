@@ -99,23 +99,27 @@ const customLogins = {};
  */
 async function initialize() {
 
+  process.env.ZITI_NODEJS_LOG = '99';
+  process.env.ZITI_LOG = '99';
+  process.env.MBEDTLS_DEBUG = '99';
+
   //
   trackEvent('desktop-start', 'User', username.sync());
   trackEvent('desktop-start', 'Version', pjson.version);
   trackEvent('desktop-start', 'OS', os.type());
 
   //
-  crashReporter.start({
-    productName: 'MattermoZt',
-    companyName: 'NetFoundry',
-    submitURL: 'https://MattermoZt.bugsplat.com/post/electron/crash',
-    ignoreSystemCrashHandler: true,
-    extra: {
-      'key': 'Main',
-      'email': 'curt@netfoundry.io',
-      'comments': 'Main Process'
-    }
-  });
+  // crashReporter.start({
+  //   productName: 'MattermoZt',
+  //   companyName: 'NetFoundry',
+  //   submitURL: 'https://MattermoZt.bugsplat.com/post/electron/crash',
+  //   ignoreSystemCrashHandler: true,
+  //   extra: {
+  //     'key': 'Main',
+  //     'email': 'curt@netfoundry.io',
+  //     'comments': 'Main Process'
+  //   }
+  // });
 
   process.on('uncaughtException', criticalErrorHandler.processUncaughtExceptionHandler.bind(criticalErrorHandler));
   global.willAppQuit = false;
