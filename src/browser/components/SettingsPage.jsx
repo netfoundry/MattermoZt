@@ -7,6 +7,8 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
+import logger from 'electron-log';
+import path from 'path';
 import {Button, Checkbox, Col, FormGroup, Grid, HelpBlock, Navbar, Radio, Row} from 'react-bootstrap';
 
 import {ipcRenderer, remote} from 'electron';
@@ -113,6 +115,73 @@ export default class SettingsPage extends React.Component {
 
     ipcRenderer.on('switch-tab', (event, key) => {
       backToIndex(key);
+    });
+
+    ipcRenderer.on('initiate-enrollment-error', (event, args) => {
+      logger.info('initiate-enrollment-error event received, args are: %o', args);
+
+      if (args.errors) {
+        const options = {
+          type: 'question',
+          buttons: ['OK'],
+          defaultId: 1,
+          title: 'ERROR',
+          message: 'ERROR',
+          detail: args.errors[0].msg,
+        };
+
+        remote.dialog.showMessageBox(null, options, (response) => {
+        });
+      }
+
+    });
+
+    ipcRenderer.on('initiate-enrollment-status', (event, args) => {
+      logger.info('initiate-enrollment-status event received, args are: %o', args);
+
+      if (args.errors) {
+        const options = {
+          type: 'error',
+          buttons: ['OK'],
+          defaultId: 1,
+          title: 'ERROR',
+          message: args.errors[0].msg,
+          detail: args.errors[0].innerError.msg,
+        };
+
+        remote.dialog.showMessageBox(null, options, (response) => {
+        });
+      }
+      else {
+        const assetsDir = path.resolve(remote.app.getAppPath(), 'assets');
+
+        let options = {
+          type: 'info',
+          buttons: ['OK'],
+          defaultId: 1,
+          icon: path.join(assetsDir, 'ziti-logo.png'),
+          title: 'AWAITING EMAIL VERIFICATION',
+          message: 'Email Verification Required Before Proceeding',
+          detail: 'An email has been sent to the address you provided.\n\nPlease check your email now, and complete your email verification by clicking the \'Verify\' button in the email.\n\nThen return here and click OK.',
+        };
+
+        remote.dialog.showMessageBox(null, options, (response) => {
+
+          options = {
+            type: 'info',
+            buttons: ['OK'],
+            defaultId: 1,
+            icon: path.join(assetsDir, 'ziti-logo.png'),
+            title: 'EMAIL VERIFICATION',
+            message: 'If You Have Successfully Completed Your Email Verification...',
+            detail: '...then dismiss this MessageBox, and then click the "X" in the top-right of the Settings Page.\n\nYour Ziti enrollment should then complete, and you will be connected to the MattermoZt server.',
+          };
+
+          remote.dialog.showMessageBox(null, options, (response) => {
+          });
+  
+        });
+      }
     });
 
     ipcRenderer.on('zoom-in', () => {
@@ -645,7 +714,7 @@ export default class SettingsPage extends React.Component {
           md={10}
           xs={8}
         >
-          <h2 style={settingsPage.sectionHeading}>{'Server Management'}</h2>
+          <h2 style={settingsPage.sectionHeading}>{'Identity Management'}</h2>
           <div className='IndicatorContainer'>
             <AutoSaveIndicator
               id='serversSaveIndicator'
@@ -664,7 +733,7 @@ export default class SettingsPage extends React.Component {
               id='addNewServer'
               href='#'
               onClick={this.toggleShowTeamForm}
-            >{'+ Add New Server'}</a>
+            >{'+ Add New Identity'}</a>
           </p>
         </Col>
       </Row>

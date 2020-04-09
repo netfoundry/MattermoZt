@@ -12,6 +12,7 @@ import PropTypes from 'prop-types';
 import {CSSTransition, TransitionGroup} from 'react-transition-group';
 import {Grid, Row} from 'react-bootstrap';
 import DotsVerticalIcon from 'mdi-react/DotsVerticalIcon';
+import log from 'electron-log';
 
 import {ipcRenderer, remote} from 'electron';
 
@@ -728,6 +729,8 @@ export default class MainPage extends React.Component {
         }
       }
 
+      const jwtPath = remote.app.getPath('userData') + '/ziti-jwt';
+
       return (
         <MattermostView
           key={id}
@@ -737,7 +740,7 @@ export default class MainPage extends React.Component {
           onSelectSpellCheckerLocale={this.props.onSelectSpellCheckerLocale}
           src={teamUrl}
           name={team.name}
-          identity={team.identity}
+          identity={jwtPath}
           onTargetURLChange={self.handleTargetURLChange}
           onBadgeChange={handleBadgeChange}
           onNotificationClick={handleNotificationClick}

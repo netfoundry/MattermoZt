@@ -3,8 +3,12 @@
   margin-bottom: 0px;
 }
 
+#teamEmailInput {
+  background: linear-gradient(to right, #0027ab 0%, #fe0029 100%);
+  color: white;
+}
+
 #teamIdentityInput {
-  /* background-color: linear-gradient (to right, #0027ab 0%, #fe0029 100%); */
   background: linear-gradient(to right, #0027ab 0%, #fe0029 100%);
   color: white;
 }

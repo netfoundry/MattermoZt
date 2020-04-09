@@ -2,6 +2,7 @@
 // Copyright (c) 2016-present Mattermost, Inc. All Rights Reserved.
 // See LICENSE.txt for license information.
 import url from 'url';
+import os from 'os';
 
 import electron from 'electron';
 import {isUri, isHttpUri, isHttpsUri} from 'valid-url';
@@ -93,7 +94,7 @@ function getServer(inputURL, teams) {
 
     // check server and subpath matches (without subpath pathname is \ so it always matches)
     if (parsedServerUrl.origin === parsedURL.origin && parsedURL.pathname.startsWith(parsedServerUrl.pathname)) {
-      return {name: teams[i].name, url: parsedServerUrl, identity: teams[i].identity, index: i};
+      return {name: teams[i].name, url: parsedServerUrl, email: teams[i].email, identity: teams[i].identity, index: i};
     }
   }
   return null;
@@ -116,6 +117,10 @@ function getDisplayBoundaries() {
   });
 }
 
+function generateDefaultIdentityName() {
+  return (os.hostname() + '-' + os.type()).toLowerCase();
+}
+
 export default {
   getDomain,
   isValidURL,
@@ -126,4 +131,5 @@ export default {
   isTeamUrl,
   isPluginUrl,
   getDisplayBoundaries,
+  generateDefaultIdentityName,
 };
