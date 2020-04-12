@@ -9,6 +9,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import logger from 'electron-log';
 import path from 'path';
+import fs from 'fs';
 import {Button, Checkbox, Col, FormGroup, Grid, HelpBlock, Navbar, Radio, Row} from 'react-bootstrap';
 
 import {ipcRenderer, remote} from 'electron';
@@ -44,6 +45,10 @@ export default class SettingsPage extends React.Component {
     this.state = this.convertConfigDataToState(config.data);
     this.setState({
       maximized: false,
+    });
+
+    this.setState({
+      jwtTime: new Date(),
     });
 
     this.trayIconThemeRef = React.createRef();
@@ -107,6 +112,13 @@ export default class SettingsPage extends React.Component {
       config.reload();
     });
 
+    // listen for any JWT arrival events from the main process (just cause a re-render)
+    ipcRenderer.on('jwt-arrival', () => {
+      this.setState({
+        jwtTime: new Date(),
+      });
+    });
+
     ipcRenderer.on('add-server', () => {
       this.setState({
         showAddTeamForm: true,
@@ -162,24 +174,10 @@ export default class SettingsPage extends React.Component {
           icon: path.join(assetsDir, 'ziti-logo.png'),
           title: 'AWAITING EMAIL VERIFICATION',
           message: 'Email Verification Required Before Proceeding',
-          detail: 'An email has been sent to the address you provided.\n\nPlease check your email now, and complete your email verification by clicking the \'Verify\' button in the email.\n\nThen return here and click OK.',
+          detail: 'An email has been sent to the address you provided.\n\nPlease check your email now, and complete your email verification by clicking the \'Verify\' button in the email.',
         };
 
-        remote.dialog.showMessageBox(null, options, (response) => {
-
-          options = {
-            type: 'info',
-            buttons: ['OK'],
-            defaultId: 1,
-            icon: path.join(assetsDir, 'ziti-logo.png'),
-            title: 'EMAIL VERIFICATION',
-            message: 'If You Have Successfully Completed Your Email Verification...',
-            detail: '...then dismiss this MessageBox, and then click the "X" in the top-right of the Settings Page.\n\nYour Ziti enrollment should then complete, and you will be connected to the MattermoZt server.',
-          };
-
-          remote.dialog.showMessageBox(null, options, (response) => {
-          });
-  
+        remote.dialog.showMessageBox(null, options, (response) => {  
         });
       }
     });
@@ -557,6 +555,44 @@ export default class SettingsPage extends React.Component {
     this.setState({fullScreen: win.isFullScreen()});
   }
 
+  isConnectEnabled = () => {
+    try {
+      const identityPath = remote.app.getPath('userData') + '/ziti-identity.json';
+
+      if (fs.existsSync(identityPath)) {
+        return true;
+      }
+      const jwtPath = remote.app.getPath('userData') + '/ziti-jwt';
+      if (fs.existsSync(jwtPath)) {
+        return true;
+      }
+
+      return false;
+
+    } catch(err) {
+      return false;
+    }    
+  }
+
+  getCloseButtonText = () => {
+    try {
+      const identityPath = remote.app.getPath('userData') + '/ziti-identity.json';
+
+      if (fs.existsSync(identityPath)) {
+        return 'Connect';
+      }
+      const jwtPath = remote.app.getPath('userData') + '/ziti-jwt';
+      if (fs.existsSync(jwtPath)) {
+        return 'Connect';
+      }
+
+      return 'Awaiting Email Verification';
+
+    } catch(err) {
+      return 'Awaiting Email Verification';
+    }    
+  }
+
   render() {
     const tabsRow = (
       <TabBar
@@ -661,7 +697,7 @@ export default class SettingsPage extends React.Component {
         position: 'absolute',
         right: '0',
         top: '5px',
-        fontSize: '35px',
+        fontSize: '24px',
         fontWeight: 'normal',
         color: '#bbb',
       },
@@ -992,9 +1028,9 @@ export default class SettingsPage extends React.Component {
                 bsStyle='link'
                 style={settingsPage.close}
                 onClick={this.handleCancel}
-                disabled={this.state.teams.length === 0}
+                disabled={(!this.isConnectEnabled() || this.state.teams.length === 0)}
               >
-                <span>{'×'}</span>
+                <span className={(!this.isConnectEnabled() || this.state.teams.length === 0) ? 'CloseButtonDisabled' : ''}>{this.getCloseButtonText()}</span>
               </Button>
             </div>
           </Navbar>

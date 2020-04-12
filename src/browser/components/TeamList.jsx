@@ -1,10 +1,12 @@
 // Copyright (c) 2015-2016 Yuya Ochiai
 // Copyright (c) 2016-present Mattermost, Inc. All Rights Reserved.
 // See LICENSE.txt for license information.
+import fs from 'fs';
+
 import React from 'react';
 import PropTypes from 'prop-types';
 import {ListGroup} from 'react-bootstrap';
-import {ipcRenderer} from 'electron';
+import {ipcRenderer, remote} from 'electron';
 import logger from 'electron-log';
 
 import TeamListItem from './TeamListItem.jsx';
@@ -41,6 +43,26 @@ export default class TeamList extends React.Component {
         value.order--;
       }
     });
+
+    const identityPath = remote.app.getPath('userData') + '/ziti-identity.json';
+    const jwtPath = remote.app.getPath('userData') + '/ziti-jwt';
+    const enrollmentResponsePath = remote.app.getPath('userData') + '/ziti-enrollment-response';
+    try {
+      fs.unlinkSync(identityPath);
+    } catch(err) {
+      logger.error(err);
+    }
+    try {
+      fs.unlinkSync(jwtPath);
+    } catch(err) {
+      logger.error(err);
+    }
+    try {
+      fs.unlinkSync(enrollmentResponsePath);
+    } catch(err) {
+      logger.error(err);
+    }
+
     this.props.onTeamsChange(teams);
   }
 

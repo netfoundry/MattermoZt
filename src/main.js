@@ -315,6 +315,12 @@ function handleConfigSynchronize() {
   }
 }
 
+function handleJWTArrival() {
+  if (mainWindow) {
+    mainWindow.webContents.send('jwt-arrival');
+  }
+}
+
 function handleReloadConfig() {
   config.reload();
 }
@@ -901,6 +907,10 @@ async function doPollEnrollmentStatus() {
 
       fs.writeFileSync(app.getPath('userData') + '/ziti-jwt', jwt);
 
+      log.info('JWT saved to userData');
+
+      handleJWTArrival();
+
       clearInterval(pollEnrollmentStatusInterval);
 
       log.info('doPollEnrollmentStatus() enrollmentResponse.data.jwt is present, exiting');
@@ -933,6 +943,8 @@ async function doPollEnrollmentStatus() {
 
       log.info('JWT saved to userData');
 
+      handleJWTArrival();
+
       clearInterval(pollEnrollmentStatusInterval);
     }
   } catch (err) {
@@ -954,8 +966,6 @@ async function handleInitiateEnrollmentEvent(event, arg) {
         'Content-Type': 'application/json',
       },
     });
-
-    log.info('Enrollments response is: %o', response);
 
     const json = await response.json();
 
