@@ -160,10 +160,6 @@ export default class MattermostView extends React.Component {
     webview.addEventListener('dom-ready', () => {
       // webview.openDevTools();
 
-      // Make the location of the identify file available to the pre-load script
-      debug('setting window.zitiIdentityPath (%o)', this.props.identity);
-//      webview.executeJavaScript('window.zitiIdentityPath = "' + this.props.identity + '";');
-
       // Remove this once https://github.com/electron/electron/issues/14474 is fixed
       // - fixes missing cursor bug in electron
       // - only apply this focus fix if the current view is active

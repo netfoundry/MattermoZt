@@ -1,7 +1,7 @@
 {
   "name": "mattermoZt-desktop",
   "productName": "MattermoZt",
-  "version": "4.3.11",
+  "version": "4.3.12",
   "desktopName": "MattermoZt.desktop",
   "description": "MattermoZt",
   "main": "main_bundle.js",

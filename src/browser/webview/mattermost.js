@@ -3,14 +3,13 @@
 // See LICENSE.txt for license information.
 'use strict';
 
-/* eslint-disable no-magic-numbers */
-
 // Let Ziti take over all fetch operations
 import 'ziti-electron-fetch';
 
-import {ipcRenderer, webFrame, remote} from 'electron';
+// Let Ziti take over all WebSocket operations
+import 'ziti-electron-websocket';
 
-const trackEvent = remote.getGlobal('trackEvent');
+import {ipcRenderer, webFrame, remote} from 'electron';
 
 const UNREAD_COUNT_INTERVAL = 1000;
 const CLEAR_CACHE_INTERVAL = 6 * 60 * 60 * 1000; // 6 hours

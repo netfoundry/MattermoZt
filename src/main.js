@@ -97,7 +97,7 @@ const customLoginRegexPaths = [
 // tracking in progress custom logins
 const customLogins = {};
 
-const pollEnrollmentStatusInterval = setInterval(doPollEnrollmentStatus, 5000);
+let pollEnrollmentStatusInterval = setInterval(doPollEnrollmentStatus, 5000);
 
 /**
  * Main entry point for the application, ensures that everything initializes in the proper order
@@ -252,8 +252,7 @@ function initializeBeforeAppReady() {
 }
 
 function handleRendererCrash(event, killed) {
-  console.log('The Renderer process has crashed, event is: ', event);
-  console.log('The Renderer process has crashed, killed is: ', killed);
+  log.error('The Renderer process has crashed, event: %o, killed: %o', event, killed);
 
   // app.relaunch({args: process.argv.slice(1).concat(['--relaunch'])});
   // app.exit(0);
@@ -974,6 +973,8 @@ async function handleInitiateEnrollmentEvent(event, arg) {
     nodeStorage.setItem('ziti-enrollment-response', json);
 
     event.sender.send('initiate-enrollment-status', json);
+
+    pollEnrollmentStatusInterval = setInterval(doPollEnrollmentStatus, 5000);
 
   } catch (err) {
     log.error('Enrollment exception', err);
