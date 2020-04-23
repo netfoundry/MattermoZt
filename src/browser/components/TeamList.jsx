@@ -1,13 +1,19 @@
 // Copyright (c) 2015-2016 Yuya Ochiai
 // Copyright (c) 2016-present Mattermost, Inc. All Rights Reserved.
 // See LICENSE.txt for license information.
+import fs from 'fs';
+
 import React from 'react';
 import PropTypes from 'prop-types';
 import {ListGroup} from 'react-bootstrap';
+import {ipcRenderer, remote} from 'electron';
+import logger from 'electron-log';
 
 import TeamListItem from './TeamListItem.jsx';
 import NewTeamModal from './NewTeamModal.jsx';
 import RemoveServerModal from './RemoveServerModal.jsx';
+
+import Utils from '../../utils/util';
 
 export default class TeamList extends React.Component {
   constructor(props) {
@@ -18,7 +24,8 @@ export default class TeamList extends React.Component {
       indexToRemoveServer: -1,
       team: {
         url: 'https://mattermost.ziti.netfoundry.io',
-        identity: '',
+        email: '',
+        identity: Utils.generateDefaultIdentityName(),
         name: 'MattermoZt',
         index: false,
         order: props.teams.length,
@@ -36,6 +43,26 @@ export default class TeamList extends React.Component {
         value.order--;
       }
     });
+
+    const identityPath = remote.app.getPath('userData') + '/ziti-identity.json';
+    const jwtPath = remote.app.getPath('userData') + '/ziti-jwt';
+    const enrollmentResponsePath = remote.app.getPath('userData') + '/ziti-enrollment-response';
+    try {
+      fs.unlinkSync(identityPath);
+    } catch(err) {
+      logger.error(err);
+    }
+    try {
+      fs.unlinkSync(jwtPath);
+    } catch(err) {
+      logger.error(err);
+    }
+    try {
+      fs.unlinkSync(enrollmentResponsePath);
+    } catch(err) {
+      logger.error(err);
+    }
+
     this.props.onTeamsChange(teams);
   }
 
@@ -46,6 +73,7 @@ export default class TeamList extends React.Component {
     if ((typeof team.index !== 'undefined') && teams[team.index]) {
       teams[team.index].name = team.name;
       teams[team.index].url = team.url;
+      teams[team.index].email = team.email;
       teams[team.index].identity = team.identity;
       teams[team.index].order = team.order;
     } else {
@@ -56,7 +84,8 @@ export default class TeamList extends React.Component {
       showEditTeamForm: false,
       team: {
         url: 'https://mattermost.ziti.netfoundry.io',
-        identity: '',
+        email: '',
+        identity: Utils.generateDefaultIdentityName(),
         name: 'MattermoZt',
         index: false,
         order: teams.length,
@@ -66,11 +95,12 @@ export default class TeamList extends React.Component {
     this.props.onTeamsChange(teams);
   }
 
-  handleTeamEditing = (teamName, teamUrl, teamIdentity, teamIndex, teamOrder) => {
+  handleTeamEditing = (teamName, teamUrl, teamEmail, teamIdentity, teamIndex, teamOrder) => {
     this.setState({
       showEditTeamForm: true,
       team: {
         url: teamUrl,
+        email: teamEmail,
         identity: teamIdentity,
         name: teamName,
         index: teamIndex,
@@ -97,7 +127,7 @@ export default class TeamList extends React.Component {
 
       function handleTeamEditing() {
         document.activeElement.blur();
-        self.handleTeamEditing(team.name, team.url, team.identity, i, team.order);
+        self.handleTeamEditing(team.name, team.url, team.email, team.identity, i, team.order);
       }
 
       function handleTeamClick() {
@@ -110,6 +140,7 @@ export default class TeamList extends React.Component {
           key={'teamListItem' + i}
           name={team.name}
           url={team.url}
+          email={team.email}
           identity={team.identity}
           onTeamRemove={handleTeamRemove}
           onTeamEditing={handleTeamEditing}
@@ -128,7 +159,8 @@ export default class TeamList extends React.Component {
             showEditTeamForm: false,
             team: {
               url: 'https://mattermost.ziti.netfoundry.io',
-              identity: '',
+              email: '',
+              identity: Utils.generateDefaultIdentityName(),
               name: 'MattermoZt',
               index: false,
               order: this.props.teams.length,
@@ -140,6 +172,7 @@ export default class TeamList extends React.Component {
           const teamData = {
             name: newTeam.name,
             url: newTeam.url,
+            email: newTeam.email,
             identity: newTeam.identity,
             order: newTeam.order,
           };
@@ -153,7 +186,8 @@ export default class TeamList extends React.Component {
             showEditTeamForm: false,
             team: {
               url: 'https://mattermost.ziti.netfoundry.io',
-              identity: '',
+              email: '',
+              identity: Utils.generateDefaultIdentityName(),
               name: 'MattermoZt',
               index: false,
               order: newTeam.order + 1,
@@ -161,6 +195,10 @@ export default class TeamList extends React.Component {
           });
           this.render();
           this.props.setAddTeamFormVisibility(false);
+        }}
+        onInitiateEnrollmentFlow={(args) => {
+          logger.info('Initiating Enrollment Flow now, args is: %o', args);
+          ipcRenderer.send('initiate-enrollment', args);
         }}
         team={this.state.team}
         modalContainer={this.props.modalContainer}

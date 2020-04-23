@@ -22,8 +22,12 @@ export default class TeamListItem extends React.Component {
           <p className='list-group-item-text'>
             { this.props.url }
           </p>
+          <br/>
           <p className='list-group-item-text'>
-            {'Path to Ziti enrollment-token file: '}{ this.props.identity }
+            {'Email: '}{ this.props.email }
+          </p>
+          <p className='list-group-item-text'>
+            {'Identity Name: '}{ this.props.identity }
           </p>
         </div>
         <div className='pull-right'>
@@ -49,4 +53,5 @@ TeamListItem.propTypes = {
   onTeamClick: PropTypes.func,
   url: PropTypes.string,
   identity: PropTypes.string,
+  email: PropTypes.string,
 };

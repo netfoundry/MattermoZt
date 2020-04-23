@@ -7,6 +7,9 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
+import logger from 'electron-log';
+import path from 'path';
+import fs from 'fs';
 import {Button, Checkbox, Col, FormGroup, Grid, HelpBlock, Navbar, Radio, Row} from 'react-bootstrap';
 
 import {ipcRenderer, remote} from 'electron';
@@ -42,6 +45,10 @@ export default class SettingsPage extends React.Component {
     this.state = this.convertConfigDataToState(config.data);
     this.setState({
       maximized: false,
+    });
+
+    this.setState({
+      jwtTime: new Date(),
     });
 
     this.trayIconThemeRef = React.createRef();
@@ -105,6 +112,13 @@ export default class SettingsPage extends React.Component {
       config.reload();
     });
 
+    // listen for any JWT arrival events from the main process (just cause a re-render)
+    ipcRenderer.on('jwt-arrival', () => {
+      this.setState({
+        jwtTime: new Date(),
+      });
+    });
+
     ipcRenderer.on('add-server', () => {
       this.setState({
         showAddTeamForm: true,
@@ -113,6 +127,59 @@ export default class SettingsPage extends React.Component {
 
     ipcRenderer.on('switch-tab', (event, key) => {
       backToIndex(key);
+    });
+
+    ipcRenderer.on('initiate-enrollment-error', (event, args) => {
+      logger.info('initiate-enrollment-error event received, args are: %o', args);
+
+      if (args.errors) {
+        const options = {
+          type: 'question',
+          buttons: ['OK'],
+          defaultId: 1,
+          title: 'ERROR',
+          message: 'ERROR',
+          detail: args.errors[0].msg,
+        };
+
+        remote.dialog.showMessageBox(null, options, (response) => {
+        });
+      }
+
+    });
+
+    ipcRenderer.on('initiate-enrollment-status', (event, args) => {
+      logger.info('initiate-enrollment-status event received, args are: %o', args);
+
+      if (args.errors) {
+        const options = {
+          type: 'error',
+          buttons: ['OK'],
+          defaultId: 1,
+          title: 'ERROR',
+          message: args.errors[0].msg,
+          detail: args.errors[0].innerError.msg,
+        };
+
+        remote.dialog.showMessageBox(null, options, (response) => {
+        });
+      }
+      else {
+        const assetsDir = path.resolve(remote.app.getAppPath(), 'assets');
+
+        let options = {
+          type: 'info',
+          buttons: ['OK'],
+          defaultId: 1,
+          icon: path.join(assetsDir, 'ziti-logo.png'),
+          title: 'AWAITING EMAIL VERIFICATION',
+          message: 'Email Verification Required Before Proceeding',
+          detail: 'An email has been sent to the address you provided.\n\nPlease check your email now, and complete your email verification by clicking the \'Verify\' button in the email.',
+        };
+
+        remote.dialog.showMessageBox(null, options, (response) => {  
+        });
+      }
     });
 
     ipcRenderer.on('zoom-in', () => {
@@ -488,6 +555,44 @@ export default class SettingsPage extends React.Component {
     this.setState({fullScreen: win.isFullScreen()});
   }
 
+  isConnectEnabled = () => {
+    try {
+      const identityPath = remote.app.getPath('userData') + '/ziti-identity.json';
+
+      if (fs.existsSync(identityPath)) {
+        return true;
+      }
+      const jwtPath = remote.app.getPath('userData') + '/ziti-jwt';
+      if (fs.existsSync(jwtPath)) {
+        return true;
+      }
+
+      return false;
+
+    } catch(err) {
+      return false;
+    }    
+  }
+
+  getCloseButtonText = () => {
+    try {
+      const identityPath = remote.app.getPath('userData') + '/ziti-identity.json';
+
+      if (fs.existsSync(identityPath)) {
+        return 'Connect';
+      }
+      const jwtPath = remote.app.getPath('userData') + '/ziti-jwt';
+      if (fs.existsSync(jwtPath)) {
+        return 'Connect';
+      }
+
+      return 'Awaiting Email Verification';
+
+    } catch(err) {
+      return 'Awaiting Email Verification';
+    }    
+  }
+
   render() {
     const tabsRow = (
       <TabBar
@@ -592,7 +697,7 @@ export default class SettingsPage extends React.Component {
         position: 'absolute',
         right: '0',
         top: '5px',
-        fontSize: '35px',
+        fontSize: '24px',
         fontWeight: 'normal',
         color: '#bbb',
       },
@@ -645,7 +750,7 @@ export default class SettingsPage extends React.Component {
           md={10}
           xs={8}
         >
-          <h2 style={settingsPage.sectionHeading}>{'Server Management'}</h2>
+          <h2 style={settingsPage.sectionHeading}>{'Identity Management'}</h2>
           <div className='IndicatorContainer'>
             <AutoSaveIndicator
               id='serversSaveIndicator'
@@ -664,7 +769,7 @@ export default class SettingsPage extends React.Component {
               id='addNewServer'
               href='#'
               onClick={this.toggleShowTeamForm}
-            >{'+ Add New Server'}</a>
+            >{'+ Add New Identity'}</a>
           </p>
         </Col>
       </Row>
@@ -923,9 +1028,9 @@ export default class SettingsPage extends React.Component {
                 bsStyle='link'
                 style={settingsPage.close}
                 onClick={this.handleCancel}
-                disabled={this.state.teams.length === 0}
+                disabled={(!this.isConnectEnabled() || this.state.teams.length === 0)}
               >
-                <span>{'×'}</span>
+                <span className={(!this.isConnectEnabled() || this.state.teams.length === 0) ? 'CloseButtonDisabled' : ''}>{this.getCloseButtonText()}</span>
               </Button>
             </div>
           </Navbar>

@@ -1,5 +1,33 @@
+.CloseButton {
+  font-size: 24px;
+}
+
+.CloseButton span {
+  background:linear-gradient(to right, #0027ab 0%, #fe0029 100%);
+	border-radius:28px;
+	border:1px solid #0027ab;
+	display:inline-block;
+	cursor:pointer;
+	color:#ffffff;
+	font-family:Arial;
+	font-size:18px !important;
+	padding:16px 31px;
+	text-decoration:none;
+	text-shadow:0px 1px 0px #0027ab;
+}
+
+.CloseButtonDisabled {
+  cursor: not-allowed !important;
+}
+
+.CloseButton:disabled {
+    opacity: 0.3;
+}
+
+
 .CloseButton:hover span {
-  color: #333;
+  color: #fff;
+  background-color: #fe0029;
 }
 
 .IndicatorContainer {

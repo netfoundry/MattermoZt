@@ -28,6 +28,8 @@ const U2F_EXTENSION_URL = 'chrome-extension://kmendfapggjehodndflmmgagdbamhnfd/u
 
 const appIconURL = `file:///${remote.app.getAppPath()}/assets/appicon_48.png`;
 
+let pollEnrollmentStatusInterval = null;
+
 export default class MattermostView extends React.Component {
   constructor(props) {
     super(props);
@@ -70,9 +72,21 @@ export default class MattermostView extends React.Component {
     };
   }
 
+  doPollEnrollmentStatus = () => {
+    log.info('MattermostView doPollEnrollmentStatus() entered');
+    // ipcRenderer.sendToHost('query-enrollment-status', {});
+  }
+
   componentDidMount() {
     const self = this;
     const webview = this.webviewRef.current;
+
+    // pollEnrollmentStatusInterval = setInterval(this.doPollEnrollmentStatus, 10000);
+
+    webview.addEventListener('query-enrollment-status-result', (e) => {
+      console.log('MattermostView query-enrollment-status-result: ', e);
+
+    });
 
     webview.addEventListener('did-fail-load', (e) => {
       debug('EVENT: did-fail-load (%o)', e);
@@ -146,10 +160,6 @@ export default class MattermostView extends React.Component {
     webview.addEventListener('dom-ready', () => {
       // webview.openDevTools();
 
-      // Make the location of the identify file available to the pre-load script
-      debug('setting window.zitiIdentityPath (%o)', this.props.identity);
-      webview.executeJavaScript('window.zitiIdentityPath = "' + this.props.identity + '";');
-
       // Remove this once https://github.com/electron/electron/issues/14474 is fixed
       // - fixes missing cursor bug in electron
       // - only apply this focus fix if the current view is active
@@ -216,6 +226,12 @@ export default class MattermostView extends React.Component {
           isLoaded: true,
         });
         break;
+
+      case 'query-enrollment-status':
+        console.log('MattermostView query-enrollment-status: ', event);
+        ipcRenderer.send('query-enrollment-status', event);
+        break;
+
       }
     });
 

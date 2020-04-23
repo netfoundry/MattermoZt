@@ -8,6 +8,8 @@ import fs from 'fs';
 
 import electron from 'electron';
 import isDev from 'electron-is-dev';
+import fetch from 'node-fetch';
+import {JSONStorage} from 'node-localstorage';
 import installExtension, {REACT_DEVELOPER_TOOLS} from 'electron-devtools-installer';
 import log from 'electron-log';
 
@@ -60,6 +62,7 @@ const loginCallbackMap = new Map();
 const certificateRequests = new Map();
 const userActivityMonitor = new UserActivityMonitor();
 const certificateErrorCallbacks = new Map();
+const nodeStorage = new JSONStorage(app.getPath('userData'));
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -94,10 +97,15 @@ const customLoginRegexPaths = [
 // tracking in progress custom logins
 const customLogins = {};
 
+let pollEnrollmentStatusInterval = setInterval(doPollEnrollmentStatus, 5000);
+
 /**
  * Main entry point for the application, ensures that everything initializes in the proper order
  */
 async function initialize() {
+
+  await doPollEnrollmentStatus(); // Do a poll immediately upon start up
+  log.info('Back from initial doPollEnrollmentStatus() call');
 
   process.env.ZITI_NODEJS_LOG = '99';
   process.env.ZITI_LOG = '99';
@@ -244,8 +252,7 @@ function initializeBeforeAppReady() {
 }
 
 function handleRendererCrash(event, killed) {
-  console.log('The Renderer process has crashed, event is: ', event);
-  console.log('The Renderer process has crashed, killed is: ', killed);
+  log.error('The Renderer process has crashed, event: %o, killed: %o', event, killed);
 
   // app.relaunch({args: process.argv.slice(1).concat(['--relaunch'])});
   // app.exit(0);
@@ -266,6 +273,8 @@ function initializeInterCommunicationEventListeners() {
   ipcMain.on('reply-on-spellchecker-is-ready', handleReplyOnSpellcheckerIsReadyEvent);
   ipcMain.on('selected-client-certificate', handleSelectedCertificate);
   ipcMain.on('rendererCrash', handleRendererCrash);
+  ipcMain.on('initiate-enrollment', handleInitiateEnrollmentEvent);
+  ipcMain.on('query-enrollment-status', handleQueryEnrollmentStatusEvent);
 
   if (shouldShowTrayIcon()) {
     ipcMain.on('update-unread', handleUpdateUnreadEvent);
@@ -302,6 +311,12 @@ function handleConfigUpdate(configData) {
 function handleConfigSynchronize() {
   if (mainWindow) {
     mainWindow.webContents.send('reload-config');
+  }
+}
+
+function handleJWTArrival() {
+  if (mainWindow) {
+    mainWindow.webContents.send('jwt-arrival');
   }
 }
 
@@ -864,6 +879,119 @@ function handleNotifiedEvent() {
 
 function handleUpdateTitleEvent(event, arg) {
   mainWindow.setTitle(arg.title);
+}
+
+async function doPollEnrollmentStatus() {
+  try {
+    log.info('doPollEnrollmentStatus() entered');
+
+    let enrollmentResponse = nodeStorage.getItem('ziti-enrollment-response');
+
+    if (!enrollmentResponse) {
+      log.info('enrollmentResponse not present, exiting');
+      return;
+    }
+
+    enrollmentResponse = JSON.parse(fs.readFileSync(app.getPath('userData') + '/ziti-enrollment-response', 'utf-8'));
+
+    if (enrollmentResponse.errors) {
+      log.info('enrollmentResponse has errors, exiting');
+      return;
+    }
+
+    if (enrollmentResponse.data && enrollmentResponse.data.jwt) {
+      // If the JWT has arrived, then we can stop polling for it
+      const jwt = enrollmentResponse.data.jwt;
+      log.info('jwt is: [%s]', jwt);
+
+      fs.writeFileSync(app.getPath('userData') + '/ziti-jwt', jwt);
+
+      log.info('JWT saved to userData');
+
+      handleJWTArrival();
+
+      clearInterval(pollEnrollmentStatusInterval);
+
+      log.info('doPollEnrollmentStatus() enrollmentResponse.data.jwt is present, exiting');
+
+      return;
+    }
+
+    let id = enrollmentResponse.data.id;
+    id = id.replace(/'/g, '');
+    log.info('ID is: %o', id);
+
+    const response = await fetch('https://zac-enroll.ziti.netfoundry.io:1080/enrollments/' + id, {
+      method: 'get',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    enrollmentResponse = await response.json();
+
+    log.info('Enrollments json response is: %o', enrollmentResponse);
+
+    nodeStorage.setItem('ziti-enrollment-response', enrollmentResponse);
+
+    if (enrollmentResponse.data && enrollmentResponse.data.jwt) {
+      // If the JWT has arrived, extract and save it
+      const jwt = enrollmentResponse.data.jwt;
+
+      fs.writeFileSync(app.getPath('userData') + '/ziti-jwt', jwt);
+
+      log.info('JWT saved to userData');
+
+      handleJWTArrival();
+
+      clearInterval(pollEnrollmentStatusInterval);
+    }
+  } catch (err) {
+    log.error('doPollEnrollmentStatus exception', err);
+  }
+}
+
+async function handleInitiateEnrollmentEvent(event, arg) {
+  log.info('handleInitiateEnrollmentEvent() entered, arg is: %o', arg);
+
+  const body = JSON.stringify(arg);
+  log.info('handleInitiateEnrollmentEvent() entered, stringified event is: %o', body);
+
+  try {
+    const response = await fetch('https://zac-enroll.ziti.netfoundry.io:1080/enrollments', {
+      method: 'post',
+      body: JSON.stringify(arg),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    const json = await response.json();
+
+    log.info('Enrollments json response is: %o', json);
+
+    nodeStorage.setItem('ziti-enrollment-response', json);
+
+    event.sender.send('initiate-enrollment-status', json);
+
+    pollEnrollmentStatusInterval = setInterval(doPollEnrollmentStatus, 5000);
+
+  } catch (err) {
+    log.error('Enrollment exception', err);
+    event.sender.send('initiate-enrollment-error', err);
+  }
+}
+
+async function handleQueryEnrollmentStatusEvent(event, arg) {
+  log.info('handleQueryEnrollmentStatusEvent() entered, arg is: %o', arg);
+  const enrollmentResponse = nodeStorage.getItem('ziti-enrollment-response');
+
+  // If the JWT has arrived, then we can stop polling for it
+  if (enrollmentResponse.data && enrollmentResponse.data.jwt) {
+    clearInterval(pollEnrollmentStatusInterval);
+  }
+
+  event.sender.send('query-enrollment-status-result', enrollmentResponse);
 }
 
 function handleUpdateUnreadEvent(event, arg) {
