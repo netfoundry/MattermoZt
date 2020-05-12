@@ -107,9 +107,9 @@ async function initialize() {
   await doPollEnrollmentStatus(); // Do a poll immediately upon start up
   log.info('Back from initial doPollEnrollmentStatus() call');
 
-  process.env.ZITI_NODEJS_LOG = '99';
-  process.env.ZITI_LOG = '99';
-  process.env.MBEDTLS_DEBUG = '99';
+  // process.env.ZITI_NODEJS_LOG = '99';
+  // process.env.ZITI_LOG = '99';
+  // process.env.MBEDTLS_DEBUG = '99';
 
   //
   trackEvent('desktop-start', 'User', username.sync());
