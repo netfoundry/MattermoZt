@@ -1,7 +1,7 @@
 {
   "name": "mattermost-desktop",
   "productName": "MattermoZt",
-  "version": "4.3.15",
+  "version": "4.3.16",
   "description": "MattermoZt",
   "main": "main.js",
   "author": "Mattermost, Inc. <feedback@mattermost.com>",
@@ -20,7 +20,7 @@
     "build": "npm-run-all build:*",
     "build:main": "webpack-cli --bail --config webpack.config.main.js",
     "build:renderer": "webpack-cli --bail --config webpack.config.renderer.js",
-    "start": "electron src --disable-dev-mode",
+    "start": "electron src --disable-dev-mode --remote-debugging-port=9223",
     "start:testupdates": "electron src --disable-dev-mode --config.publish.provider=s3 --config.publish.endpoint=http://127.0.0.1:9000 --config.publish.bucket=test-update",
     "restart": "npm run build && npm run start",
     "storybook": "start-storybook -p 9001 -c src/.storybook",
@@ -91,7 +91,7 @@
     "webpack-cli": "^3.1.2",
     "webpack-dev-server": "^3.1.14",
     "webpack-merge": "^4.1.4",
-    "ziti-electron-fetch": "2.6.17",
+    "ziti-electron-fetch": "2.6.19",
     "ziti-electron-websocket": "0.1.1"
   },
   "dependencies": {
