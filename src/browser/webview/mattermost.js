@@ -7,7 +7,7 @@
 import 'ziti-electron-fetch';
 
 // Let Ziti take over all WebSocket operations
-// import 'ziti-electron-websocket'; // disable until e2e-tls added
+import 'ziti-electron-websocket';
 
 import {ipcRenderer, webFrame, remote} from 'electron';
 
