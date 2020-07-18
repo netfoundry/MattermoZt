@@ -1,7 +1,7 @@
 {
   "name": "mattermost-desktop",
   "productName": "MattermoZt",
-  "version": "4.3.24",
+  "version": "4.3.25",
   "description": "MattermoZt",
   "main": "main.js",
   "author": "Mattermost, Inc. <feedback@mattermost.com>",
@@ -93,8 +93,8 @@
     "webpack-cli": "^3.1.2",
     "webpack-dev-server": "^3.1.14",
     "webpack-merge": "^4.1.4",
-    "ziti-electron-fetch": "2.6.27",
-    "ziti-electron-websocket": "0.1.8"
+    "ziti-electron-fetch": "2.6.28",
+    "ziti-electron-websocket": "0.1.9"
   },
   "dependencies": {
     "bugsplat": "^3.0.0",
